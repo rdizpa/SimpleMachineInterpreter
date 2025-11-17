@@ -1,0 +1,177 @@
+* {
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+:root {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color-scheme: light dark;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar {
+    background-color: light-dark(#9ba0b1, #303030);
+    padding: 5px 10px;
+    display: flex;
+    gap: 5px;
+}
+
+.toolbar button {
+    width: 80px;
+    height: 40px;
+    border: 0;
+    background-color: light-dark(#6c7181, #1d1e23);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: 0.2s background-color;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.toolbar button svg {
+    height: 80%;
+    color: #eaeaea;
+}
+
+.toolbar button:disabled {
+    filter: brightness(.5);
+}
+
+.toolbar button:hover:not(:disabled) {
+    background-color: #383a44;
+}
+
+.editor-layout {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.editor-container {
+    display: flex;
+    flex: 1;
+    position: relative;
+}
+
+#editor {
+    flex: 1;
+    outline: none;
+    border: 0;
+    border-right: 1px solid gray;
+    padding: 10px 5px;
+    resize: none;
+    overflow-y: auto;
+}
+
+.line-number-column {
+    padding: 10px 5px;
+    text-align: right;
+    width: 50px;
+    overflow: hidden;
+}
+
+.output {
+    width: 380px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.output .row + .row {
+    border-top: 1px solid gray;
+}
+
+.output .row {
+    display: flex;
+    padding: 10px 0px;
+}
+
+.output .row * {
+    flex: 1;
+    text-align: center;
+}
+
+h3, h4 {
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+}
+
+#error {
+    display: none;
+    color: red;
+    border-radius: 20px;
+    width: 340px;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+}
+
+#error.unknown-error {
+    background-color: #f23e3e;
+    color: white;
+    padding: 20px;
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    left: auto;
+    top: auto;
+    font-family: monospace;
+}
+
+@media (max-width: 600px) {
+    .editor-layout {
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+    }
+
+    .editor-container {
+        width: 100%;
+        height: 65%;
+    }
+
+    #editor {
+        border-right: 0;
+        border-bottom: 1px solid gray;
+    }
+
+    .output {
+        height: 35%;
+        width: 100%;
+    }
+}
+
+::highlight(keyword) {
+    color: light-dark(#800080, #ab6cab);
+}
+
+::highlight(number) {
+    color: #FF8C00;
+}
+
+::highlight(_label) {
+    color: light-dark(#1E90FF, #49a4ff);
+}
+
+::highlight(_var) {
+    color: light-dark(#0fa16e, #06b906);
+}
+
+::highlight(error) {
+    text-decoration: red wavy underline;
+}
