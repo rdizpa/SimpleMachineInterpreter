@@ -13,9 +13,7 @@ window.addEventListener("load", () => {
     const params = new URLSearchParams(document.location.href.split("?")[1]);
 
     if (params.has("d")) {
-        editor.textContent = window.atob(params.get("d"));
-        updateLineNumberColumn();
-        colorize();
+        setEditorContent(window.atob(params.get("d")));
     }
 });
 
@@ -159,6 +157,15 @@ const updateLineNumberColumn = () => {
 
     lineNumberColumn.innerText = str;
     lineNumberColumn.dataset.lines = lines;
+};
+
+const setEditorContent = (content, updateURL = false) => {
+    editor.textContent = content;
+    updateLineNumberColumn();
+    colorize();
+
+    if (updateURL)
+        window.history.replaceState({}, "", "/?d=" + window.btoa(editor.textContent));
 };
 
 editor.addEventListener("scroll", (ev) => {
@@ -321,10 +328,7 @@ document.getElementById("open").addEventListener("click", () => {
 
     input.oninput = () => {
         input.files[0].text().then((code) => {
-            editor.textContent = code;
-            updateLineNumberColumn();
-            colorize();
-            window.history.replaceState({}, "", "/?d=" + window.btoa(editor.textContent));
+            setEditorContent(code, true);
         });
     }
 
