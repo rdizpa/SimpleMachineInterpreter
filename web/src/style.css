@@ -74,6 +74,7 @@ body {
     padding: 10px 5px;
     resize: none;
     overflow-y: auto;
+    white-space: pre-wrap;
 }
 
 .line-number-column {
