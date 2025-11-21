@@ -47,4 +47,4 @@ else()
     )
 endif()
 
-# TODO: Agregue pruebas y destinos de instalación si es necesario.
+# TODO: Add tests.
