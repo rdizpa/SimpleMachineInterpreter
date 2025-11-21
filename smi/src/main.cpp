@@ -1,39 +1,38 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 #include "core/interpreter.h"
 
-int main(int argc, char *argv[]) {
-	smi::interpreter::Interpreter interp;
+int main(int argc, char* argv[]) {
+    smi::interpreter::Interpreter interp;
 
-	if (argc < 2) {
-		std::cout << "Usage: smi [file]" << std::endl;
-		return 0;
-	}
+    if (argc < 2) {
+        std::cout << "Usage: smi [file]" << std::endl;
+        return 0;
+    }
 
-	std::string filename = argv[1];
-	
-	try {
-		std::ifstream ifs(filename);
-		std::ostringstream buffer;
+    std::string filename = argv[1];
 
-		buffer << ifs.rdbuf();
+    try {
+        std::ifstream ifs(filename);
+        std::ostringstream buffer;
 
-		ifs.close();
+        buffer << ifs.rdbuf();
 
-		if (interp.eval(buffer.str()) != smi::interpreter::INTERPRETER_OK) {
-			std::cout << "Error: " << getLastError() << std::endl;
-		}
+        ifs.close();
 
-		for (auto key : interp.getMemoryKeys()) {
-			std::cout << key << "\t" << std::hex << interp.getMemoryValue(key) << std::endl;
-		}
-	}
-	catch (std::exception& e) {
-		std::cout << "Error: " << e.what() << std::endl;
-		return 1;
-	}
+        if (interp.eval(buffer.str()) != smi::interpreter::INTERPRETER_OK) {
+            std::cout << "Error: " << getLastError() << std::endl;
+        }
 
-	return 0;
+        for (auto key : interp.getMemoryKeys()) {
+            std::cout << key << "\t" << std::hex << interp.getMemoryValue(key) << std::endl;
+        }
+    } catch (std::exception& e) {
+        std::cout << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
 }

@@ -1,8 +1,8 @@
 #include "smi.h"
 
-#include "core/interpreter.h"
-
 #include <string.h>
+
+#include "core/interpreter.h"
 
 struct SMI {
     smi::interpreter::Interpreter interp;
@@ -37,7 +37,7 @@ const char** smi_memory_keys_get(SMI* interp) {
 
     for (auto& key : interp->interp.getMemoryKeys()) {
         keys[i] = (char*)malloc(key.size() + 1);
-        
+
         strcpy((char*)keys[i++], key.c_str());
     }
 

@@ -1,0 +1,7 @@
+---
+BasedOnStyle: Google
+IndentWidth: 4
+UseTab: Never
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+ColumnLimit: 120
