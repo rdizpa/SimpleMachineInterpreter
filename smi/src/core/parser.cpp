@@ -44,11 +44,10 @@ Node* Parser::parse(Token token, int& error) {
 
         if (token.value != "BEQ" && (*tokens)[++index].type != TokenType::COMMA) {
             std::ostringstream buffer;
-            buffer << "Unexpected token '" << (*tokens)[index].value << "', expected ',' at position ";
-            buffer << (*tokens)[index].index << " (line: " << (*tokens)[index].line;
-            buffer << ", column: " << (*tokens)[index].column << ")";
+            buffer << "Unexpected token '" << (*tokens)[index].value << "', expected ','";
 
-            setLastError(buffer.str());
+            smi::error::setLastError((*tokens)[index].index, (*tokens)[index].line, (*tokens)[index].column,
+                                     (*tokens)[index].value.length(), buffer.str());
 
             error = PARSER_ERR_UNEXPECTED_TOKEN;
         }

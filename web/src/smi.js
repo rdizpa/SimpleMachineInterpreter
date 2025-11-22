@@ -26,9 +26,31 @@ function SMI() {
 
             return keys;
         },
-        getLastError: () => Module.ccall("smi_last_error_get", "string", [], [])
+        getLastErrorData: () => {
+            const _errorData = Module._malloc()
+            Module.ccall("smi_last_error_data_get", null, ["number"], [_errorData]);
+
+            const errorData = {
+                index: Module.getValue(_errorData, "i32"),
+                line: Module.getValue(_errorData + 4, "i32"),
+                column: Module.getValue(_errorData + 8, "i32"),
+                length: Module.getValue(_errorData + 12, "i32"),
+                message: Module.UTF8ToString(Module.getValue(_errorData + 16, "i32"))
+            };
+
+            Module._free(_errorData);
+
+            return errorData;
+        }
     };
 };
 
+const SMIError = {};
+
+Object.keys(Module).forEach((key) => {
+    if (key.startsWith("SMI_"))
+        SMIError[key] = Module[key];
+});
+
 export default SMI;
-export const SMIError = Module.SMIError;
+export { SMIError };

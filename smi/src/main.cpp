@@ -22,8 +22,19 @@ int main(int argc, char* argv[]) {
 
         ifs.close();
 
-        if (interp.eval(buffer.str()) != smi::interpreter::INTERPRETER_OK) {
-            std::cout << "Error: " << getLastError() << std::endl;
+        std::string code = buffer.str();
+
+        if (interp.eval(code) != smi::interpreter::INTERPRETER_OK) {
+            std::cout << "Error: " << smi::error::getLastErrorMessage() << std::endl;
+
+            int pos = smi::error::getLastError().index;
+            int lineStart = pos - smi::error::getLastError().column + 1;
+            int lineEnd = pos;
+            while (lineEnd < code.length() - 1 && code[lineEnd] != '\n') lineEnd++;
+
+            std::cout << code.substr(lineStart, lineEnd - lineStart) << std::endl;
+            std::cout << std::string(pos - lineStart, '-') << std::string(smi::error::getLastError().length, '^')
+                      << std::endl;
         }
 
         for (auto key : interp.getMemoryKeys()) {

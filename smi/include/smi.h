@@ -20,7 +20,7 @@ const char** smi_memory_keys_get(SMI* interp);
 void smi_memory_keys_free(const char** keys);
 uint16_t smi_memory_value_get(SMI* interp, const char* key);
 
-const char* smi_last_error_get();
+void smi_last_error_data_get(SMIErrorData* error);
 
 #ifdef __cplusplus
 }

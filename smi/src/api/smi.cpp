@@ -24,6 +24,8 @@ int smi_eval(SMI* interp, const char* code) {
             return SMI_ERR_INVALID_TOKEN;
         case smi::interpreter::INTERPRETER_ERR_UNDEFINED_LABEL:
             return SMI_ERR_UNDEFINED_LABEL;
+        case smi::interpreter::INTERPRETER_ERR_UNEXPECTED_TOKEN:
+            return SMI_ERR_UNEXPECTED_TOKEN;
         default:
             return SMI_ERR_UNKNOWN;
     }
@@ -60,21 +62,23 @@ uint16_t smi_memory_value_get(SMI* interp, const char* key) {
     return interp->interp.getMemoryValue(key);
 }
 
-const char* smi_last_error_get() {
-    return getLastError().c_str();
+void smi_last_error_data_get(SMIErrorData* error) {
+    const smi::error::ErrorData& _error = smi::error::getLastError();
+
+    error->index = _error.index;
+    error->line = _error.line;
+    error->column = _error.column;
+    error->length = _error.length;
+    error->message = _error.message.c_str();
 }
 
 #ifdef EMSCRIPTEN
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(module) {
-    emscripten::enum_<SMIError>("SMIError")
-        .value("Ok", SMI_OK)
-        .value("InvalidToken", SMI_ERR_INVALID_TOKEN)
-        .value("UndefinedLabel", SMI_ERR_UNDEFINED_LABEL);
-
     emscripten::constant("SMI_OK", (int)SMI_OK);
     emscripten::constant("SMI_ERR_INVALID_TOKEN", (int)SMI_ERR_INVALID_TOKEN);
     emscripten::constant("SMI_ERR_UNDEFINED_LABEL", (int)SMI_ERR_UNDEFINED_LABEL);
+    emscripten::constant("SMI_ERR_UNEXPECTED_TOKEN", (int)SMI_ERR_UNEXPECTED_TOKEN);
 }
 #endif

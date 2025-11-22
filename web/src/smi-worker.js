@@ -15,7 +15,7 @@ onmessage = (e) => {
         if (code !== 0) {
             postMessage({ type: "error", error: {
                 code,
-                description: (code !== -1) ? smi.getLastError() : ""
+                data: (code !== -1) ? smi.getLastErrorData() : undefined
             } });
 
             smi.destroy();

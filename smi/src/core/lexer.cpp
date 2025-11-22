@@ -41,16 +41,9 @@ int tokenize(const std::string& code, Tokens& tokens) {
 
                 if (val.length() == 0) {
                     std::ostringstream buffer;
-                    buffer << "Invalid token '" << ch << "' at position " << pos << " (line: " << line
-                           << ", column: " << (pos - lineStart + 1) << ")";
+                    buffer << "Invalid token '" << ch << "'";
 
-                    int lineEnd = pos;
-                    while (lineEnd < code.length() - 1 && code[lineEnd] != '\n') lineEnd++;
-
-                    buffer << std::endl << code.substr(lineStart, lineEnd - lineStart);
-                    buffer << std::endl << std::string(pos - lineStart, '-') << "^";
-
-                    setLastError(buffer.str());
+                    smi::error::setLastError(pos, line, pos - lineStart + 1, 1, buffer.str());
                     return LEXER_ERR_INVALID_TOKEN;
                 }
 

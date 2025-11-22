@@ -188,36 +188,24 @@ editor.addEventListener("input", (ev) => {
     window.history.replaceState({}, "", "/?d=" + window.btoa(editor.textContent));
 });
 
-function showError(msg) {
-    error.innerText = msg;
+function showError(errordata) {
+    const unknownError = typeof errordata !== "object";
+    error.innerText = unknownError ? errordata : errordata.message;
     error.style.display = "block";
 
-    const undefinedLabel = UNDEFINED_LABEL_RE.exec(msg);
-    const invalidToken = INVALID_TOKEN_RE.exec(msg);
     const ranges = [];
     
-    if (undefinedLabel && undefinedLabel[3]) {
+    if (!unknownError) {
         const range = new Range();
-        const node = getNodeAtPosition(undefinedLabel[3]);
+        const node = getNodeAtPosition(errordata.index);
 
-        range.setStart(node.node, undefinedLabel[3] - node.i);
-        range.setEnd(node.node, undefinedLabel[3] - node.i + undefinedLabel[2].length);
+        range.setStart(node.node, errordata.index - node.i);
+        range.setEnd(node.node, errordata.index - node.i + errordata.length);
 
         ranges.push(range);
         highlights["ERROR"].add(range);
 
-        error.innerText = undefinedLabel[1];
-    } else if (invalidToken && invalidToken[3]) {
-        const range = new Range();
-        const node = getNodeAtPosition(invalidToken[3]);
-
-        range.setStart(node.node, invalidToken[3] - node.i);
-        range.setEnd(node.node, invalidToken[3] - node.i + 1);
-
-        ranges.push(range);
-        highlights["ERROR"].add(range);
-
-        error.innerText = invalidToken[1];
+        error.innerText = errordata.message;
     } else {
         error.classList.add("unknown-error");
     }
@@ -266,7 +254,7 @@ runBtn.addEventListener("click", () => {
         console.timeEnd("EvalCode");
 
         if (ev.data.type === "error") {
-            showError(`${ev.data.error.description || "Unknown error"}`);
+            showError(ev.data.error.data || "Unknown error");
         }
 
         for (const key in ev.data.memory) {

@@ -41,9 +41,7 @@ class Interpreter {
 #define THROW_LABEL_NOT_FOUND_EXC(label, pos, line, column) \
     std::ostringstream buffer;                              \
     buffer << "Undefined label '" << label;                 \
-    buffer << "' at position " << pos;                      \
-    buffer << " (line: " << line << ", column: ";           \
-    buffer << column << ")";                                \
-    setLastError(buffer.str());
+    buffer << "'";                                          \
+    smi::error::setLastError(pos, line, column, label.length(), buffer.str());
 
 #endif
