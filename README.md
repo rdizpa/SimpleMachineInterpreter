@@ -148,14 +148,8 @@ cp build-wasm/smiwasmout.js web/src/smiwasmout.js
 ```bash
 cd web
 
-# If you have pnpm:
-pnpm configure
-pnpm build
-# pnpm dev
-
-# If you don't have pnpm:
 npm i
-node configure.js
-npm run build
+npm run configure
 # npm run dev
+npm run build
 ```
