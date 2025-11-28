@@ -27,7 +27,7 @@ function SMI() {
             return keys;
         },
         getLastErrorData: () => {
-            const _errorData = Module._malloc()
+            const _errorData = Module._malloc(20);
             Module.ccall("smi_last_error_data_get", null, ["number"], [_errorData]);
 
             const errorData = {
