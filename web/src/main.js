@@ -17,11 +17,7 @@ window.addEventListener("load", () => {
     }
 });
 
-const UNDEFINED_LABEL_RE = /(Undefined label '([^']*)') at position (\d+) \(line: (\d+), column: (\d+)\)/;
-const INVALID_TOKEN_RE = /(Invalid token '(.)') at position (\d+) \(line: (\d+), column: (\d+)\)/;
-
 const INSTRUCTIONS = ["MOV", "ADD", "CMP", "BEQ"];
-const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:";
 const highlights = {};
 
 highlights["INSTRUCTION"] = new Highlight();
