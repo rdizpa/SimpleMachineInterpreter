@@ -12,6 +12,7 @@ body {
     margin: 0;
     padding: 0;
     height: 100vh;
+    background-color: light-dark(white, #121212);
 }
 
 #app {
@@ -70,7 +71,6 @@ body {
     flex: 1;
     outline: none;
     border: 0;
-    border-right: 1px solid gray;
     padding: 10px 5px;
     resize: none;
     overflow-y: auto;
@@ -90,6 +90,7 @@ body {
     flex-direction: column;
     padding: 20px;
     overflow-y: auto;
+    border-left: 1px solid gray;
 }
 
 .output .row + .row {
@@ -146,14 +147,11 @@ h3, h4 {
         height: 65%;
     }
 
-    #editor {
-        border-right: 0;
-        border-bottom: 1px solid gray;
-    }
-
     .output {
         height: 35%;
         width: 100%;
+        border-left: 0;
+        border-top: 1px solid gray;
     }
 }
 
