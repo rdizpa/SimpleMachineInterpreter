@@ -67,6 +67,8 @@ int tokenize(const std::string& code, Tokens& tokens) {
         pos++;
     }
 
+    tokens.push_back(TOKEN_NEW(TokenType::_EOF, "", pos, line, pos - lineStart + 1));
+
     return LEXER_OK;
 }
 

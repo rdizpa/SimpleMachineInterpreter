@@ -10,6 +10,7 @@ namespace smi::parser {
 
 using lexer::Token;
 using lexer::Tokens;
+using lexer::TokenType;
 
 typedef enum {
     PARSER_OK = 0,
@@ -22,6 +23,10 @@ class Parser {
     const std::vector<Token>* tokens;
 
     Node* parse(Token token, int& error);
+    Node* parseOperand(Token token, int& error);
+    Node* parseLabel(Token token, int& error);
+    Node* parseInstr(Token token, int& error);
+    bool tokenMatch(const Token& token, TokenType type, int& error);
 
    public:
     Parser() : index(0), tokens(nullptr) {}

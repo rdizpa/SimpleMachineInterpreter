@@ -32,6 +32,8 @@ int main(int argc, char* argv[]) {
             int lineEnd = pos;
             while (lineEnd < code.length() - 1 && code[lineEnd] != '\n') lineEnd++;
 
+            if (lineEnd == code.length() - 1) lineEnd++;
+
             std::cout << code.substr(lineStart, lineEnd - lineStart) << std::endl;
             std::cout << std::string(pos - lineStart, '-') << std::string(smi::error::getLastError().length, '^')
                       << std::endl;

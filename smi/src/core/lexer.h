@@ -19,7 +19,8 @@ enum class TokenType {
     INSTR,
     OP,
     LITERAL,
-    COMMA
+    COMMA,
+    _EOF
 };
 
 struct Token {
