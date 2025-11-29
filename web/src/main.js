@@ -120,6 +120,16 @@ const colorize = () => {
 
     });
 
+    code.matchAll(/(\n)/gd).forEach(m => {
+        res.push({
+            type: "newline",
+            offset: m.indices[1][0],
+            length : m[1].length,
+            start: m.indices[1][0],
+            end: m.indices[1][1]
+        });
+    });
+
     res.sort((a, b) => a.start - b.start);
 
     let codeResult = "";
