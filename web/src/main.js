@@ -3,6 +3,7 @@ import "./style.css"
 import SMIWorker from "./smi-worker.js?worker";
 
 const editor = document.getElementById("editor");
+const editorHighlight = document.getElementById("editor-highlight");
 const output = document.querySelector(".output .content");
 const runBtn = document.getElementById("run");
 const stopBtn = document.getElementById("stop");
@@ -20,70 +21,67 @@ window.addEventListener("load", () => {
 const INSTRUCTIONS = ["MOV", "ADD", "CMP", "BEQ"];
 const highlights = {};
 
-highlights["INSTRUCTION"] = new Highlight();
-highlights["NUMBER"] = new Highlight();
-highlights["LABEL"] = new Highlight();
-highlights["VAR"] = new Highlight();
 highlights["ERROR"] = new Highlight();
-
-CSS.highlights.set("keyword", highlights["INSTRUCTION"]);
-CSS.highlights.set("number", highlights["NUMBER"]);
-CSS.highlights.set("_label", highlights["LABEL"]);
-CSS.highlights.set("_var", highlights["VAR"]);
 CSS.highlights.set("error", highlights["ERROR"]);
 
-/**
- * 
- * @param {string} line 
- * @returns 
- */
-const normalize = (line) => {
-    const matches = line.matchAll(new RegExp(`\\b(${INSTRUCTIONS.join("|")})\\b`, "gdi"));
+const normalize = () => {
+    const selStart = editor.selectionStart;
+
+    const matches = editor.value.matchAll(new RegExp(`\\b(${INSTRUCTIONS.join("|")})\\b`, "gdi"));
 
     for (const m of matches) {
-        line = line.substring(0, m.indices[1][0]) + m[1].toUpperCase() + line.substring(m.indices[1][1]);
+        if (m[1] !== m[1].toUpperCase()) {
+            editor.setRangeText(m[1].toUpperCase(), m.indices[1][0], m.indices[1][1], "end");
+        }
     }
 
-    for (const m of editor.textContent.matchAll(/\b([A-Z0-9a-z]+)\b:/gd)) {
-        for (const ml of line.matchAll(new RegExp(`\\b(${m[1]})\\b([^:]|$)`, "gdi")))
-            line = line.substring(0, ml.indices[1][0]) + m[1] + line.substring(ml.indices[1][1]);
+    for (const m of editor.value.matchAll(/\b([A-Z0-9a-z]+)\b:/gd)) {
+        for (const ml of editor.value.matchAll(new RegExp(`\\b(${m[1]})\\b([^:]|$)`, "gdi"))) {
+            if (ml[1] !== m[1]) {
+                editor.setRangeText(m[1], ml.indices[1][0], ml.indices[1][1], "end");
+            }
+        }
     }
 
-    return line;
+    editor.selectionStart = selStart;
+    editor.selectionEnd = selStart;
 };
 
-const getNodeAtPosition = (pos) => {
+const getNodeAtPosition = (pos, endNode = false) => {
     let i = 0;
     let lastI = 0;
     let nodeIndex = 0;
 
-    while (i <= pos && nodeIndex < editor.childNodes.length) {
+    while (i <= pos && nodeIndex < editorHighlight.childNodes.length) {
         lastI = i;
-        i += editor.childNodes[nodeIndex].textContent.length;
+        i += editorHighlight.childNodes[nodeIndex].textContent.length;
 
         if (i > pos)
+            break;
+
+        if (endNode && i == pos)
             break;
 
         nodeIndex++;
     }
 
-    if (nodeIndex >= editor.childNodes.length)
+    if (nodeIndex >= editorHighlight.childNodes.length)
         return null;
     
     return {
-        node: editor.childNodes[nodeIndex],
+        node: editorHighlight.childNodes[nodeIndex],
         i: lastI
     };
 };
 
 const colorize = () => {
-    const code = editor.textContent;
+    const code = editor.value;
     const matches = code.matchAll(new RegExp(`\\b(${INSTRUCTIONS.join("|")})\\b`, "g"));
     const res = [];
 
     matches.forEach(m => {
         res.push({
-            type: "INSTRUCTION",
+            type: "instruction",
             offset: m.index,
             length : m[0].length,
             start: m.index,
@@ -93,7 +91,7 @@ const colorize = () => {
 
     code.matchAll(/\b:[ \t]*([0-9A-Fa-f]+)\b/gd).forEach(m => {
         res.push({
-            type: "NUMBER",
+            type: "number",
             offset: m.indices[1][0],
             length : m[1].length,
             start: m.indices[1][0],
@@ -103,7 +101,7 @@ const colorize = () => {
 
     code.matchAll(/\b([A-Z0-9a-z]+)\b:/gd).forEach(m => {
         res.push({
-            type: "LABEL",
+            type: "label",
             offset: m.indices[1][0],
             length : m[1].length,
             start: m.indices[1][0],
@@ -112,7 +110,7 @@ const colorize = () => {
 
         code.matchAll(new RegExp(`\\b(${m[1]})\\b([^:]|$)`, "gd")).forEach(l => {
             res.push({
-                type: "VAR",
+                type: "var",
                 offset: l.indices[1][0],
                 length : l[1].length,
                 start: l.indices[1][0],
@@ -122,25 +120,29 @@ const colorize = () => {
 
     });
 
-    highlights.INSTRUCTION.clear();
-    highlights.NUMBER.clear();
-    highlights.LABEL.clear();
-    highlights.VAR.clear();
+    res.sort((a, b) => a.start - b.start);
+
+    let codeResult = "";
+    let lastIndex = 0;
 
     for (const tk of res) {
-        const startNode = getNodeAtPosition(tk.start);
-        const posInNode = tk.start - startNode.i;
-        const range = new Range();
+        if (tk.start < lastIndex)
+            continue;
 
-        range.setStart(startNode.node, posInNode);
-        range.setEnd(startNode.node, posInNode + tk.length);
+        codeResult += `<span>${code.substring(lastIndex, tk.start)}</span>`;
 
-        highlights[tk.type].add(range);
+        codeResult += `<span class="${tk.type}">${code.substring(tk.start, tk.end)}</span>`;
+
+        lastIndex = tk.end;
     }
+
+    codeResult += `<span>${code.substring(lastIndex)}</span>`;
+
+    editorHighlight.innerHTML = codeResult;
 }
 
 const updateLineNumberColumn = () => {
-    const lines = editor.textContent.split("\n").length - (editor.textContent.endsWith("\n") ? 1 : 0);
+    const lines = editor.value.split("\n").length;
     const currentLines = parseInt(lineNumberColumn.dataset.lines) || 1;
     
     if (lines == currentLines)
@@ -156,32 +158,26 @@ const updateLineNumberColumn = () => {
 };
 
 const setEditorContent = (content, updateURL = false) => {
-    editor.textContent = content;
+    editor.value = content;
     updateLineNumberColumn();
     colorize();
 
     if (updateURL)
-        window.history.replaceState({}, "", "/?d=" + window.btoa(editor.textContent));
+        window.history.replaceState({}, "", "/?d=" + window.btoa(editor.value));
 };
 
 editor.addEventListener("scroll", (ev) => {
     lineNumberColumn.scrollTop = editor.scrollTop;
+    editorHighlight.scrollTop = editor.scrollTop;
+    editorHighlight.scrollLeft = editor.scrollLeft;
 });
 
 editor.addEventListener("input", (ev) => {
-    const selection = window.getSelection();
-
-    if (selection.anchorNode instanceof Text) {
-        const offset = selection.anchorOffset;
-        selection.anchorNode.textContent = normalize(selection.anchorNode.textContent);
-        selection.getRangeAt(0).setStart(selection.anchorNode, offset);
-        selection.getRangeAt(0).setEnd(selection.anchorNode, offset);
-    }
-
+    normalize();
     updateLineNumberColumn();
     colorize();
 
-    window.history.replaceState({}, "", "/?d=" + window.btoa(editor.textContent));
+    window.history.replaceState({}, "", "/?d=" + window.btoa(editor.value));
 });
 
 function showError(errordata) {
@@ -194,9 +190,10 @@ function showError(errordata) {
     if (!unknownError) {
         const range = new Range();
         const node = getNodeAtPosition(errordata.index);
+        const endNode = getNodeAtPosition(errordata.index + errordata.length, true);
 
-        range.setStart(node.node, errordata.index - node.i);
-        range.setEnd(node.node, errordata.index - node.i + errordata.length);
+        range.setStart(node.node.firstChild, errordata.index - node.i);
+        range.setEnd(endNode.node.firstChild, errordata.index - endNode.i + errordata.length);
 
         ranges.push(range);
         highlights["ERROR"].add(range);
@@ -207,16 +204,14 @@ function showError(errordata) {
     }
 
     if (ranges.length > 0) {
-        const lineRange = ranges[0].cloneRange();
-        let rangeEnd = lineRange.endOffset + 1;
-        
-        while (rangeEnd < lineRange.endContainer.textContent.length
-            && lineRange.endContainer.textContent.at(rangeEnd) != "\n") {
-            rangeEnd++;
+        const errorRange = ranges[0].cloneRange();
+        let lineEndContainer = errorRange.endContainer.parentElement;
+
+        while (lineEndContainer.nextSibling != null && !lineEndContainer.textContent.includes("\n")) {
+            lineEndContainer = lineEndContainer.nextSibling
         }
 
-        lineRange.setEnd(lineRange.endContainer, rangeEnd - 1);
-        const rect = lineRange.getBoundingClientRect();
+        const rect = lineEndContainer.getBoundingClientRect();
         error.style.transform = `translate(${rect.left + rect.width + 20}px,${rect.top}px)`;
     }
 
@@ -232,16 +227,10 @@ function showError(errordata) {
 let worker = new SMIWorker();
 
 runBtn.addEventListener("click", () => {
-    if (editor.textContent.length == 0) return;
+    if (editor.value.length == 0) return;
     output.innerHTML = "";
     runBtn.disabled = true;
     stopBtn.disabled = false;
-
-    // const smi = SMI();
-
-    // smi.eval(editor.textContent);
-
-    // const keys = smi.getMemoryKeys();
 
     worker.onmessage = (ev) => {
         if (ev.data.type !== "result" && ev.data.type !== "error")
@@ -254,7 +243,6 @@ runBtn.addEventListener("click", () => {
         }
 
         for (const key in ev.data.memory) {
-            // const value = smi.getMemoryValue(key);
             const value = ev.data.memory[key];
             output.insertAdjacentHTML("beforeend",
                 `<div class="row"><div>${key}</div><div>0x${value.toString(16)}</div><div>${value}</div></div>`
@@ -267,9 +255,7 @@ runBtn.addEventListener("click", () => {
 
     console.time("EvalCode");
     
-    worker.postMessage({ type: "run", code: editor.textContent });
-
-    // smi.destroy();
+    worker.postMessage({ type: "run", code: editor.value });
 });
 
 stopBtn.addEventListener("click", () => {
@@ -293,7 +279,7 @@ document.getElementById("share").addEventListener("click", () => {
 });
 
 document.getElementById("save").addEventListener("click", () => {
-    const blob = new Blob([editor.textContent], { type: "text/plain" });
+    const blob = new Blob([editor.value], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");

@@ -65,6 +65,14 @@ body {
     display: flex;
     flex: 1;
     position: relative;
+    font-family: monospace;
+    font-size: 1rem;
+}
+
+.editor-container-ed {
+    flex: 1;
+    position: relative;
+    display: flex;
 }
 
 #editor {
@@ -73,8 +81,31 @@ body {
     border: 0;
     padding: 10px 5px;
     resize: none;
-    overflow-y: auto;
-    white-space: pre-wrap;
+    overflow: auto;
+    white-space: nowrap;
+    background-color: transparent;
+    color: transparent;
+    caret-color: light-dark(black, white);
+    font-size: 1rem;
+}
+
+#editor::selection {
+    color: inherit;
+    background-color: #183961;
+}
+
+#editor-highlight {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    padding: 10px 5px;
+    background-color: transparent;
+    pointer-events: none;
+    white-space: pre;
+    font-size: 1rem;
+    overflow: auto;
 }
 
 .line-number-column {
@@ -117,7 +148,7 @@ h3, h4 {
     display: none;
     color: red;
     border-radius: 20px;
-    width: 340px;
+    width: 380px;
     position: fixed;
     left: 0px;
     top: 0px;
@@ -155,19 +186,19 @@ h3, h4 {
     }
 }
 
-::highlight(keyword) {
+.instruction {
     color: light-dark(#800080, #ab6cab);
 }
 
-::highlight(number) {
+.number {
     color: #FF8C00;
 }
 
-::highlight(_label) {
+.label {
     color: light-dark(#1E90FF, #49a4ff);
 }
 
-::highlight(_var) {
+.var {
     color: light-dark(#0fa16e, #06b906);
 }
 
