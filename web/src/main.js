@@ -197,7 +197,7 @@ function showError(errordata) {
 
     const ranges = [];
     
-    if (!unknownError) {
+    if (!unknownError && errordata.index < editor.value.length) {
         const range = new Range();
         const node = getNodeAtPosition(errordata.index);
         const endNode = getNodeAtPosition(errordata.index + errordata.length, true);
