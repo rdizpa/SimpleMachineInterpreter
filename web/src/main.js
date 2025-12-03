@@ -173,7 +173,7 @@ const setEditorContent = (content, updateURL = false) => {
     colorize();
 
     if (updateURL)
-        window.history.replaceState({}, "", "/?d=" + window.btoa(editor.value));
+        window.history.replaceState({}, "", "?d=" + window.btoa(editor.value));
 };
 
 editor.addEventListener("scroll", (ev) => {
@@ -187,7 +187,7 @@ editor.addEventListener("input", (ev) => {
     updateLineNumberColumn();
     colorize();
 
-    window.history.replaceState({}, "", "/?d=" + window.btoa(editor.value));
+    window.history.replaceState({}, "", "?d=" + window.btoa(editor.value));
 });
 
 function showError(errordata) {
