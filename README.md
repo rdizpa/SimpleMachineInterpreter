@@ -34,7 +34,7 @@ END:
 For more examples, see the `examples` folder.
 
 ___
-There are two different targets on the proyect:
+There are two different targets on the project:
  - CLI Application. See [Build CLI](#build-cli).
  - Web Application. See [Build Web](#build-web) (~~requires [building the WASM](#build-wasm) first~~).
 

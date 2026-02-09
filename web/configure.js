@@ -2,9 +2,9 @@ import { execSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
-const proyectDir = "../";
-const smiDir = path.join(proyectDir, "smi/");
-const buildDir = path.join(proyectDir, "build-wasm/");
+const projectDir = "../";
+const smiDir = path.join(projectDir, "smi/");
+const buildDir = path.join(projectDir, "build-wasm/");
 
 if (!existsSync(buildDir)) {
     mkdirSync(buildDir);
