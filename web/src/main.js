@@ -190,6 +190,15 @@ editor.addEventListener("input", (ev) => {
     window.history.replaceState({}, "", "?d=" + window.btoa(editor.value));
 });
 
+function clearError() {
+    if (error.style.display === "none")
+        return;
+    
+    error.style.display = "none";
+    error.style.transform = "";
+    error.classList.remove("unknown-error");
+}
+
 function showError(errordata) {
     const unknownError = typeof errordata !== "object";
     error.innerText = unknownError ? errordata : errordata.message;
@@ -226,9 +235,7 @@ function showError(errordata) {
     }
 
     setTimeout(() => {
-        error.style.display = "none";
-        error.style.transform = "";
-        error.classList.remove("unknown-error");
+        clearError();
         (ranges.length > 0) && ranges.forEach(range => highlights["ERROR"].delete(range));
     }, 4000);
 }
@@ -329,4 +336,6 @@ document.addEventListener("keydown", (ev) => {
             document.getElementById("save").click();
         }
     }
+
+    clearError();
 });
