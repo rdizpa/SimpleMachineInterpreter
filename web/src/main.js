@@ -146,7 +146,7 @@ const colorize = () => {
         lastIndex = tk.end;
     }
 
-    codeResult += `<span>${code.substring(lastIndex)}</span>`;
+    codeResult += `<span>${code.substring(lastIndex)}</span><br/>`;
 
     editorHighlight.innerHTML = codeResult;
 }
