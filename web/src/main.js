@@ -90,7 +90,7 @@ const colorize = () => {
         })
     });
 
-    code.matchAll(/\b:[ \t]*([0-9A-Fa-f]+)\b/gd).forEach(m => {
+    code.matchAll(/\b:[ \t]*((?:0[xX])?[0-9A-Fa-f]+)\b/gd).forEach(m => {
         res.push({
             type: "number",
             offset: m.indices[1][0],
