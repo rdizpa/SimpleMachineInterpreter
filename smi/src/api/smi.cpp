@@ -3,9 +3,14 @@
 #include <string.h>
 
 #include "core/interpreter.h"
+#include "core/ms/decompiler.h"
 
 struct SMI {
     smi::interpreter::Interpreter interp;
+};
+
+struct SMIMSDecompiler {
+    smi::ms::decompiler::MSDecompiler decompiler;
 };
 
 SMI* smi_new() {
@@ -70,6 +75,25 @@ void smi_last_error_data_get(SMIErrorData* error) {
     error->column = _error.column;
     error->length = _error.length;
     error->message = _error.message.c_str();
+}
+
+SMIMSDecompiler* smi_msdecompiler_new() {
+    return new SMIMSDecompiler();
+}
+
+void smi_msdecompiler_destroy(SMIMSDecompiler* decompiler) {
+    delete decompiler;
+}
+
+const char* smi_msdecompiler_decompile(SMIMSDecompiler* decompiler, const char* code, int size) {
+    std::string result;
+
+    if (decompiler->decompiler.decompile(code, size, result) != smi::ms::decompiler::DECOMPILER_OK) return NULL;
+
+    char* ptr = (char*)malloc(result.length() + 1);
+    strcpy(ptr, result.c_str());
+
+    return ptr;
 }
 
 #ifdef EMSCRIPTEN

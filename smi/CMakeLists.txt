@@ -17,6 +17,9 @@ set(LIBSMI_SOURCES
     "src/core/interpreter.h"
     "src/core/smierror.h"
     "src/core/smierror.cpp"
+    "src/core/ms/mstypes.h"
+    "src/core/ms/decompiler.h"
+    "src/core/ms/decompiler.cpp"
 )
 
 if (NOT EMSCRIPTEN)
@@ -39,7 +42,7 @@ else()
     )
 
     target_link_options(smiwasmout
-        PUBLIC -sEXPORTED_FUNCTIONS=['_smi_new','_smi_destroy','_smi_eval','_smi_memory_keys_get','_smi_memory_keys_free','_smi_memory_value_get','_smi_last_error_data_get','_malloc','_free']
+        PUBLIC -sEXPORTED_FUNCTIONS=['_smi_new','_smi_destroy','_smi_eval','_smi_memory_keys_get','_smi_memory_keys_free','_smi_memory_value_get','_smi_last_error_data_get','_smi_msdecompiler_new','_smi_msdecompiler_destroy','_smi_msdecompiler_decompile','_malloc','_free']
         PUBLIC -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAP32','getValue','UTF8ToString']
         PUBLIC -sMODULARIZE=1
         PUBLIC -sEXPORT_ES6=1

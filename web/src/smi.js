@@ -45,6 +45,31 @@ function SMI() {
     };
 };
 
+function SMIDecompiler() {
+    const _SMIDecompiler = Module._smi_msdecompiler_new();
+
+    return {
+        destroy: () => Module._smi_msdecompiler_destroy(_SMIDecompiler),
+        decompile: (data) => {
+            const result = Module.ccall(
+                "smi_msdecompiler_decompile",
+                "number",
+                ["number", "array", "number"],
+                [_SMIDecompiler, data, data.byteLength]
+            );
+
+            if (result === 0) {
+                return "";
+            }
+
+            const code = Module.UTF8ToString(result);
+            Module._free(result);
+
+            return code;
+        }
+    };
+}
+
 const SMIError = {};
 
 Object.keys(Module).forEach((key) => {
@@ -53,4 +78,4 @@ Object.keys(Module).forEach((key) => {
 });
 
 export default SMI;
-export { SMIError };
+export { SMIDecompiler, SMIError };

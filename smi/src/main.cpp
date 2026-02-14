@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "core/interpreter.h"
+#include "core/ms/decompiler.h"
 
 int main(int argc, char* argv[]) {
     smi::interpreter::Interpreter interp;
@@ -23,6 +24,18 @@ int main(int argc, char* argv[]) {
         ifs.close();
 
         std::string code = buffer.str();
+
+        if (filename.find(".MS") != std::string::npos) {
+            smi::ms::decompiler::MSDecompiler dec;
+            std::string result;
+
+            if (dec.decompile(code.c_str(), code.length(), result) != smi::ms::decompiler::DECOMPILER_OK) {
+                throw std::runtime_error("Invalid file");
+            }
+
+            std::cout << result << std::endl << std::endl;
+            code = result;
+        }
 
         if (interp.eval(code) != smi::interpreter::INTERPRETER_OK) {
             std::cout << "Error: " << smi::error::getLastErrorMessage() << std::endl;

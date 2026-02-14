@@ -1,5 +1,6 @@
 import "./style.css"
 
+import { SMIDecompiler } from "./smi";
 import SMIWorker from "./smi-worker.js?worker";
 
 const editor = document.getElementById("editor");
@@ -10,13 +11,13 @@ const stopBtn = document.getElementById("stop");
 const error = document.getElementById("error");
 const lineNumberColumn = document.querySelector(".line-number-column");
 
-window.addEventListener("load", () => {
+setTimeout(() => {
     const params = new URLSearchParams(document.location.href.split("?")[1]);
 
     if (params.has("d")) {
         setEditorContent(window.atob(params.get("d")));
     }
-});
+}, 0);
 
 const INSTRUCTIONS = ["MOV", "ADD", "CMP", "BEQ"];
 const highlights = {};
@@ -311,12 +312,25 @@ document.getElementById("open").addEventListener("click", () => {
     const input = document.createElement("input");
     
     input.type = "file";
-    input.accept = ".txt";
+    input.accept = ".txt,.MS";
 
-    input.oninput = () => {
-        input.files[0].text().then((code) => {
+    input.oninput = async () => {
+        const file = input.files[0];
+
+        if (!file)
+            return;
+
+        if (file.name.endsWith(".MS")) {
+            const smiDecompiler = SMIDecompiler();
+
+            const code = smiDecompiler.decompile(await file.bytes());
+
+            smiDecompiler.destroy();
+
             setEditorContent(code, true);
-        });
+        } else {
+            setEditorContent(await file.text(), true);
+        }
     }
 
     input.click();
