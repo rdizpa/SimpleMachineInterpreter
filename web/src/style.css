@@ -169,7 +169,7 @@ h3, h4 {
 }
 
 #save-file-dialog {
-    background-color: light-dark(#a4a4a444, #c9c9c944);
+    background-color: light-dark(#a4a4a444, #1c1c1c45);
     position: fixed;
     left: 0;
     top: 0;
@@ -201,19 +201,20 @@ h3, h4 {
     outline: none;
     padding: 0px 10px;
     border: 1px solid;
+    border-radius: 5px;
     border-color: light-dark(#c6c6c6, #414141);
     background-color: light-dark(white, #414141);
 }
 
 .sfd-options {
     display: flex;
-    gap: 15px;
+    gap: 5px;
 }
 
 .sfd-option {
     border: 2px solid;
     border-color: light-dark(gray, #3f3f3f);
-    border-radius: 20px;
+    border-radius: 10px;
     flex: 1;
     display: flex;
     justify-content: center;
@@ -229,17 +230,21 @@ h3, h4 {
     user-select: none;
 }
 
-.sfd-option:hover {
-    border-color: #1313a9;
+.sfd-option[data-value="txt"] {
+    border-radius: 30px 5px 5px 30px;
+    font-weight: 300;
 }
 
-.sfd-option[data-value="ms"] {
+.sfd-option[data-value="MS"] {
+    border-radius: 5px 30px 30px 5px;
     font-weight: 800;
 }
 
 .sfd-option.selected {
-    /* background-image: linear-gradient(#2d2d2d, #1f1f1f); */
-    background-color: light-dark(#bbbbbb, #797979);
+    background-image: linear-gradient(#323232, #2b2b2b);
+    font-size: 3.5rem;
+    color: #868686;
+    border-color: #13a94f;
 }
 
 .save-file-error {
@@ -249,13 +254,16 @@ h3, h4 {
 .sfd-container button {
     height: 45px;
     cursor: pointer;
-    background-color: light-dark(#dfdfdf, #414141);
-    border: 0;
+    background-color: light-dark(white, #2d2d2d);
+    border: 1px solid;
+    border-color: light-dark(gray, #3f3f3f);
+    border-radius: 5px 5px 10px 10px;
     transition: 0.2s all;
 }
 
 .sfd-container button:hover {
-    background-color: light-dark(#cecece, #575757);
+    background-color: light-dark(#cecece, #272727);
+    border-color: #49a4ff;
 }
 
 @media (max-width: 600px) {
