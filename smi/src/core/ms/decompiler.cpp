@@ -6,6 +6,13 @@
 
 namespace smi::ms::decompiler {
 
+uint16_t MSDecompiler::read16(const char*& p) {
+    uint8_t b2 = *p++;
+    uint8_t b1 = *p++;
+
+    return (b1 << 8) | b2;
+}
+
 int MSDecompiler::decompile(const char* data, unsigned int size, std::string& result) {
     this->pos = 0;
     this->data = data;
@@ -14,9 +21,14 @@ int MSDecompiler::decompile(const char* data, unsigned int size, std::string& re
     uint8_t b1 = data[this->pos++];
 
     this->numLabels = (b1 << 8) | b2;
-    this->pos += 2;
 
-    unsigned int minSize = 4 + DATASIZE * 2 + DATASIZE + this->numLabels * 7 + this->numLabels * 2;
+    b2 = data[this->pos++];
+    b1 = data[this->pos++];
+
+    this->numUndefinedLabels = (b1 << 8) | b2;
+
+    unsigned int minSize = 4 + DATASIZE * 2 + DATASIZE + this->numLabels * 7 + this->numLabels * 2 +
+                           this->numUndefinedLabels * 7 + this->numUndefinedLabels * 2 + this->numUndefinedLabels * 2;
 
     if (size < minSize) return DECOMPILER_ERR_INVALID_FILE;
 
@@ -41,10 +53,26 @@ int MSDecompiler::decompile(const char* data, unsigned int size, std::string& re
 
             if (instructionText.empty()) return DECOMPILER_ERR_INVALID_OPCODE;
 
-            strCode << instructionText << " " << labels[instructions[i].op1].name;
+            std::string l1, l2;
+
+            if (instructions[i].opcode != BEQ && (lines[i].undefinedLabels & 0b01) != 0) {
+                l1 = undefinedLabels[i].name1;
+            } else if (instructions[i].opcode == BEQ && (lines[i].undefinedLabels & 0b10) != 0) {
+                l1 = undefinedLabels[i].name2;
+            } else {
+                l1 = labels[instructions[i].op1].name;
+            }
+
+            strCode << instructionText << " " << l1;
 
             if (instructions[i].opcode != BEQ) {
-                strCode << ", " << labels[instructions[i].op2].name;
+                if ((lines[i].undefinedLabels & 0b10) != 0) {
+                    l2 = undefinedLabels[i].name2;
+                } else {
+                    l2 = labels[instructions[i].op2].name;
+                }
+
+                strCode << ", " << l2;
             }
 
             strCode << std::endl;
@@ -62,6 +90,9 @@ void MSDecompiler::readData() {
     const char* const types = data + 4 + DATASIZE * 2;
     const char* pLabels = types + DATASIZE;
     const char* pLabelPos = pLabels + 7 * this->numLabels;
+    const char* pUndefinedLabels = pLabelPos + this->numLabels * 2;
+    const char* pUndefinedLabelPos = pUndefinedLabels + 7 * this->numUndefinedLabels;
+    const char* pUndefinedLabelOp = pUndefinedLabelPos + this->numUndefinedLabels * 2;
 
     for (int i = 0; i < DATASIZE; i++) {
         uint8_t b2 = data[this->pos++];
@@ -71,6 +102,7 @@ void MSDecompiler::readData() {
         lines[i].type = types[i];
         lines[i].data = lineData;
         lines[i].hasLabel = false;
+        lines[i].undefinedLabels = 0;
 
         if (lines[i].type == INST) {
             uint16_t instruction = lines[i].data;
@@ -88,15 +120,32 @@ void MSDecompiler::readData() {
     }
 
     for (int i = 0; i < this->numLabels; i++) {
-        uint8_t b2 = *pLabelPos++;
-        uint8_t b1 = *pLabelPos++;
-        uint16_t labelLinePos = (b1 << 8) | b2;
+        uint16_t labelLinePos = read16(pLabelPos);
 
         lines[labelLinePos].hasLabel = true;
 
         memset(labels[labelLinePos].name, 0, 7);
         memcpy(labels[labelLinePos].name, pLabels, 6);
         pLabels += 7;
+    }
+
+    for (int i = 0; i < this->numUndefinedLabels; i++) {
+        uint16_t labelInstructionPos = read16(pUndefinedLabelPos);
+        uint16_t labelInstructionOp = read16(pUndefinedLabelOp);
+
+        if (labelInstructionOp == 0) {
+            lines[labelInstructionPos].undefinedLabels |= 0b01;
+
+            memset(undefinedLabels[labelInstructionPos].name1, 0, 7);
+            memcpy(undefinedLabels[labelInstructionPos].name1, pUndefinedLabels, 6);
+        } else {
+            lines[labelInstructionPos].undefinedLabels |= 0b10;
+
+            memset(undefinedLabels[labelInstructionPos].name2, 0, 7);
+            memcpy(undefinedLabels[labelInstructionPos].name2, pUndefinedLabels, 6);
+        }
+
+        pUndefinedLabels += 7;
     }
 }
 

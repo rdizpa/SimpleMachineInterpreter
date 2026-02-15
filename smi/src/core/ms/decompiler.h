@@ -18,9 +18,13 @@ class MSDecompiler {
     unsigned int pos;
     const char* data;
     uint16_t numLabels;
+    uint16_t numUndefinedLabels;
     Line lines[DATASIZE];
     Label labels[DATASIZE];
+    UndefinedLabel undefinedLabels[DATASIZE];
     Instruction instructions[DATASIZE];
+
+    uint16_t read16(const char*& p);
 
     void readData();
     std::string instructionToText(uint8_t op);

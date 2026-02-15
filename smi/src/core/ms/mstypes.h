@@ -24,6 +24,7 @@ struct Line {
     uint8_t type;
     uint16_t data;
     bool hasLabel;
+    uint8_t undefinedLabels;
 };
 
 struct Instruction {
@@ -34,6 +35,11 @@ struct Instruction {
 
 struct Label {
     char name[7];
+};
+
+struct UndefinedLabel {
+    char name1[7];
+    char name2[7];
 };
 
 }  // namespace smi::ms
