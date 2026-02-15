@@ -1,6 +1,6 @@
 import "./style.css"
 
-import { SMIDecompiler } from "./smi";
+import SMI, { SMICompiler, SMIDecompiler } from "./smi";
 import SMIWorker from "./smi-worker.js?worker";
 
 const editor = document.getElementById("editor");
@@ -10,6 +10,8 @@ const runBtn = document.getElementById("run");
 const stopBtn = document.getElementById("stop");
 const error = document.getElementById("error");
 const lineNumberColumn = document.querySelector(".line-number-column");
+const saveFileDialog = document.getElementById("save-file-dialog");
+const saveFileForm = document.querySelector("form.sfd-container");
 
 setTimeout(() => {
     const params = new URLSearchParams(document.location.href.split("?")[1]);
@@ -184,12 +186,15 @@ editor.addEventListener("scroll", (ev) => {
 });
 
 editor.addEventListener("input", (ev) => {
+    clearError();
     normalize();
     updateLineNumberColumn();
     colorize();
 
     window.history.replaceState({}, "", "?d=" + window.btoa(editor.value));
 });
+
+let ranges = [];
 
 function clearError() {
     if (error.style.display === "none")
@@ -198,14 +203,17 @@ function clearError() {
     error.style.display = "none";
     error.style.transform = "";
     error.classList.remove("unknown-error");
+
+    if (ranges.length > 0) {
+        ranges.forEach(range => highlights["ERROR"].delete(range));
+        ranges = [];
+    }
 }
 
 function showError(errordata) {
     const unknownError = typeof errordata !== "object";
     error.innerText = unknownError ? errordata : errordata.message;
     error.style.display = "block";
-
-    const ranges = [];
     
     if (!unknownError && errordata.index < editor.value.length) {
         const range = new Range();
@@ -221,6 +229,10 @@ function showError(errordata) {
         error.innerText = errordata.message;
     } else {
         error.classList.add("unknown-error");
+
+        setTimeout(() => {
+            clearError();
+        }, 4000);
     }
 
     if (ranges.length > 0) {
@@ -234,11 +246,6 @@ function showError(errordata) {
         const rect = lineEndContainer.getBoundingClientRect();
         error.style.transform = `translate(${rect.left + rect.width + 20}px,${rect.top}px)`;
     }
-
-    setTimeout(() => {
-        clearError();
-        (ranges.length > 0) && ranges.forEach(range => highlights["ERROR"].delete(range));
-    }, 4000);
 }
 
 // let worker = new Worker("smi-worker.js", { type: "module" });
@@ -297,15 +304,48 @@ document.getElementById("share").addEventListener("click", () => {
 });
 
 document.getElementById("save").addEventListener("click", () => {
-    const blob = new Blob([editor.value], { type: "text/plain" });
+    document.querySelector(".save-file-error").textContent = "";
+    saveFileDialog.classList.remove("hidden");
+});
+
+saveFileForm.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+
+    const filename = saveFileForm.querySelector("input[name='filename']").value;
+    const filetype = saveFileForm.querySelector(".sfd-option.selected").dataset.value;
+
+    let blob = null;
+
+    if (filetype === "MS") {
+        const smiCompiler = SMICompiler();
+
+        const result = smiCompiler.compile(editor.value);
+
+        smiCompiler.destroy();
+
+        if (!result) {
+            const error = SMI.getLastErrorData();
+
+            document.querySelector(".save-file-error").textContent = `Your file contains errors: ${error.message}`;
+            showError(error);
+            return;
+        }
+
+        blob = new Blob([result], { type: "application/octet-stream" });
+    } else {
+        blob = new Blob([editor.value], { type: "text/plain" });
+    }
+
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = "SMI_Work.txt";
+    link.download = filename + "." + filetype;
     link.click();
 
     URL.revokeObjectURL(url);
+
+    saveFileDialog.classList.add("hidden");
 });
 
 document.getElementById("open").addEventListener("click", () => {
@@ -350,6 +390,20 @@ document.addEventListener("keydown", (ev) => {
             document.getElementById("save").click();
         }
     }
+});
 
-    clearError();
+saveFileDialog.addEventListener("click", (ev) => {
+    if (!saveFileForm.contains(ev.target)) {
+        saveFileDialog.classList.add("hidden");
+    }
+});
+
+document.querySelectorAll(".sfd-option").forEach(opt => {
+    opt.addEventListener("click", (ev) => {
+        document.querySelectorAll(".sfd-option").forEach(opt => {
+            opt.classList.remove("selected");
+        });
+
+        ev.target.classList.add("selected");
+    });
 });

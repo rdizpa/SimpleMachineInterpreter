@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
 * {
     box-sizing: border-box;
     font-family: inherit;
@@ -164,6 +166,96 @@ h3, h4 {
     left: auto;
     top: auto;
     font-family: monospace;
+}
+
+#save-file-dialog {
+    background-color: light-dark(#a4a4a444, #c9c9c944);
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.sfd-container {
+    background-color: light-dark(#ffffff, #2a2a2a);
+    padding: 30px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 450px;
+    height: fit-content;
+}
+
+.sfd-container input[type="text"] {
+    height: 50px;
+    outline: none;
+    padding: 0px 10px;
+    border: 1px solid;
+    border-color: light-dark(#c6c6c6, #414141);
+    background-color: light-dark(white, #414141);
+}
+
+.sfd-options {
+    display: flex;
+    gap: 15px;
+}
+
+.sfd-option {
+    border: 2px solid;
+    border-color: light-dark(gray, #3f3f3f);
+    border-radius: 20px;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1;
+    font-size: 3rem;
+    background-color: light-dark(white, #2d2d2d);
+    color: #4f4f4f;
+    font-family: "JetBrains Mono";
+    font-weight: 400;
+    cursor: pointer;
+    transition: 0.2s all;
+    user-select: none;
+}
+
+.sfd-option:hover {
+    border-color: #1313a9;
+}
+
+.sfd-option[data-value="ms"] {
+    font-weight: 800;
+}
+
+.sfd-option.selected {
+    /* background-image: linear-gradient(#2d2d2d, #1f1f1f); */
+    background-color: light-dark(#bbbbbb, #797979);
+}
+
+.save-file-error {
+    color: red;
+}
+
+.sfd-container button {
+    height: 45px;
+    cursor: pointer;
+    background-color: light-dark(#dfdfdf, #414141);
+    border: 0;
+    transition: 0.2s all;
+}
+
+.sfd-container button:hover {
+    background-color: light-dark(#cecece, #575757);
 }
 
 @media (max-width: 600px) {

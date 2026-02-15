@@ -20,12 +20,38 @@ set(LIBSMI_SOURCES
     "src/core/ms/mstypes.h"
     "src/core/ms/decompiler.h"
     "src/core/ms/decompiler.cpp"
+    "src/core/ms/compiler.h"
+    "src/core/ms/compiler.cpp"
 )
+
+set(EXPORTED_FUNCTIONS
+    "_smi_new"
+    "_smi_destroy"
+    "_smi_eval"
+    "_smi_memory_keys_get"
+    "_smi_memory_keys_free"
+    "_smi_memory_value_get"
+    "_smi_last_error_data_get"
+    "_smi_msdecompiler_new"
+    "_smi_msdecompiler_destroy"
+    "_smi_msdecompiler_decompile"
+    "_smi_mscompiler_new"
+    "_smi_mscompiler_destroy"
+    "_smi_mscompiler_compile"
+    "_malloc"
+    "_free"
+)
+
+list(JOIN EXPORTED_FUNCTIONS "," EXPORTED_FUNCTIONS_STR)
 
 if (NOT EMSCRIPTEN)
     add_executable(smi
         "src/main.cpp"
         ${LIBSMI_SOURCES}
+    )
+
+    target_include_directories(smi
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 
     if (CMAKE_VERSION VERSION_GREATER 3.12)
@@ -42,8 +68,8 @@ else()
     )
 
     target_link_options(smiwasmout
-        PUBLIC -sEXPORTED_FUNCTIONS=['_smi_new','_smi_destroy','_smi_eval','_smi_memory_keys_get','_smi_memory_keys_free','_smi_memory_value_get','_smi_last_error_data_get','_smi_msdecompiler_new','_smi_msdecompiler_destroy','_smi_msdecompiler_decompile','_malloc','_free']
-        PUBLIC -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAP32','getValue','UTF8ToString']
+        PUBLIC -sEXPORTED_FUNCTIONS=[${EXPORTED_FUNCTIONS_STR}]
+        PUBLIC -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAP8','getValue','UTF8ToString']
         PUBLIC -sMODULARIZE=1
         PUBLIC -sEXPORT_ES6=1
         PUBLIC -lembind

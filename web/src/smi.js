@@ -25,24 +25,25 @@ function SMI() {
             Module.ccall("smi_memory_keys_free", null, ["number"], [arrayPointer]);
 
             return keys;
-        },
-        getLastErrorData: () => {
-            const _errorData = Module._malloc(20);
-            Module.ccall("smi_last_error_data_get", null, ["number"], [_errorData]);
-
-            const errorData = {
-                index: Module.getValue(_errorData, "i32"),
-                line: Module.getValue(_errorData + 4, "i32"),
-                column: Module.getValue(_errorData + 8, "i32"),
-                length: Module.getValue(_errorData + 12, "i32"),
-                message: Module.UTF8ToString(Module.getValue(_errorData + 16, "i32"))
-            };
-
-            Module._free(_errorData);
-
-            return errorData;
         }
     };
+};
+
+SMI.getLastErrorData = () => {
+    const _errorData = Module._malloc(20);
+    Module.ccall("smi_last_error_data_get", null, ["number"], [_errorData]);
+
+    const errorData = {
+        index: Module.getValue(_errorData, "i32"),
+        line: Module.getValue(_errorData + 4, "i32"),
+        column: Module.getValue(_errorData + 8, "i32"),
+        length: Module.getValue(_errorData + 12, "i32"),
+        message: Module.UTF8ToString(Module.getValue(_errorData + 16, "i32"))
+    };
+
+    Module._free(_errorData);
+
+    return errorData;
 };
 
 function SMIDecompiler() {
@@ -70,6 +71,36 @@ function SMIDecompiler() {
     };
 }
 
+function SMICompiler() {
+    const _SMICompiler = Module._smi_mscompiler_new();
+
+    return {
+        destroy: () => Module._smi_mscompiler_destroy(_SMICompiler),
+        compile: (code) => {
+            const outSize = Module._malloc(4);
+
+            const ptr = Module.ccall(
+                "smi_mscompiler_compile",
+                "number",
+                ["number", "string", "number", "number"],
+                [_SMICompiler, code, code.length, outSize]
+            );
+
+            const size = Module.getValue(outSize, "i32");
+            Module._free(outSize);
+
+            if (ptr === 0)
+                return null;
+
+            const result = new Uint8Array(Module.HEAP8.buffer, ptr, size);
+
+            Module._free(ptr);
+
+            return result;
+        }
+    };
+}
+
 const SMIError = {};
 
 Object.keys(Module).forEach((key) => {
@@ -78,4 +109,4 @@ Object.keys(Module).forEach((key) => {
 });
 
 export default SMI;
-export { SMIDecompiler, SMIError };
+export { SMICompiler, SMIDecompiler, SMIError };

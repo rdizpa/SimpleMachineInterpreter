@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "core/interpreter.h"
+#include "core/ms/compiler.h"
 #include "core/ms/decompiler.h"
 
 struct SMI {
@@ -11,6 +12,10 @@ struct SMI {
 
 struct SMIMSDecompiler {
     smi::ms::decompiler::MSDecompiler decompiler;
+};
+
+struct SMIMSCompiler {
+    smi::ms::compiler::MSCompiler compiler;
 };
 
 SMI* smi_new() {
@@ -92,6 +97,27 @@ const char* smi_msdecompiler_decompile(SMIMSDecompiler* decompiler, const char* 
 
     char* ptr = (char*)malloc(result.length() + 1);
     strcpy(ptr, result.c_str());
+
+    return ptr;
+}
+
+SMIMSCompiler* smi_mscompiler_new() {
+    return new SMIMSCompiler();
+}
+
+void smi_mscompiler_destroy(SMIMSCompiler* compiler) {
+    delete compiler;
+}
+
+const char* smi_mscompiler_compile(SMIMSCompiler* compiler, const char* code, int size, int* sizeout) {
+    std::string result;
+
+    if (compiler->compiler.compile(std::string(code, size), result) != smi::ms::compiler::COMPILER_OK) return NULL;
+
+    char* ptr = (char*)malloc(result.length());
+    memcpy(ptr, result.c_str(), result.length());
+
+    *sizeout = result.length();
 
     return ptr;
 }

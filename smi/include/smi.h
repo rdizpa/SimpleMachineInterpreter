@@ -11,6 +11,7 @@ extern "C" {
 
 typedef struct SMI SMI;
 typedef struct SMIMSDecompiler SMIMSDecompiler;
+typedef struct SMIMSCompiler SMIMSCompiler;
 
 SMI* smi_new();
 void smi_destroy(SMI* interp);
@@ -26,6 +27,10 @@ void smi_last_error_data_get(SMIErrorData* error);
 SMIMSDecompiler* smi_msdecompiler_new();
 void smi_msdecompiler_destroy(SMIMSDecompiler* decompiler);
 const char* smi_msdecompiler_decompile(SMIMSDecompiler* decompiler, const char* code, int size);
+
+SMIMSCompiler* smi_mscompiler_new();
+void smi_mscompiler_destroy(SMIMSCompiler* compiler);
+const char* smi_mscompiler_compile(SMIMSCompiler* compiler, const char* code, int size, int* sizeout);
 
 #ifdef __cplusplus
 }
