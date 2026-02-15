@@ -38,6 +38,10 @@ int MSCompiler::compile(const std::string& code, std::string& result) {
                     return COMPILER_ERR_FILE_TOO_LONG;
                 }
 
+                if (tk > 0 && tokens[tk - 1].type == TokenType::LABEL) {
+                    this->pos++;
+                }
+
                 this->lines[this->pos].hasLabel = true;
 
                 if (token.value.length() > 6) {
@@ -119,6 +123,13 @@ int MSCompiler::compile(const std::string& code, std::string& result) {
                 this->pos++;
                 break;
             }
+
+            case TokenType::LABEL: {
+                if (tk > 0 && tokens[tk - 1].type == TokenType::LABEL) {
+                    this->pos++;
+                }
+            }
+
             default:
                 break;
         }

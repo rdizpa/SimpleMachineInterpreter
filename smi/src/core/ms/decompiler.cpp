@@ -26,11 +26,11 @@ int MSDecompiler::decompile(const char* data, unsigned int size, std::string& re
 
     for (int i = 0; i < DATASIZE; i++) {
         if (lines[i].hasLabel) {
-            if (lines[i].type == INST) strCode << std::endl;
+            if (lines[i].type != DATA) strCode << std::endl;
 
             strCode << labels[i].name << ":";
 
-            if (lines[i].type == INST)
+            if (lines[i].type != DATA)
                 strCode << std::endl;
             else
                 strCode << " ";
