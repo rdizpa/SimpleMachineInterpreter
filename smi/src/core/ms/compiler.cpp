@@ -64,6 +64,8 @@ int MSCompiler::compile(const std::string& code, std::string& result) {
 
                 this->pos++;
                 break;
+            default:
+                break;
         }
     }
 
@@ -117,6 +119,8 @@ int MSCompiler::compile(const std::string& code, std::string& result) {
                 this->pos++;
                 break;
             }
+            default:
+                break;
         }
     }
 
