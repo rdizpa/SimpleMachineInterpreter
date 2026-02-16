@@ -20,6 +20,7 @@ typedef enum {
 
 class Interpreter {
    private:
+    std::vector<std::string> memory_keys;
     std::unordered_map<std::string, uint16_t> memory;
     std::unordered_map<std::string, uint16_t> labels;
     bool cmp;
@@ -32,7 +33,7 @@ class Interpreter {
 
    public:
     int eval(const std::string& code);
-    std::vector<std::string> getMemoryKeys();
+    const std::vector<std::string>& getMemoryKeys();
     uint16_t getMemoryValue(std::string key);
 };
 

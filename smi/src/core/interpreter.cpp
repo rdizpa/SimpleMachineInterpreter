@@ -1,5 +1,7 @@
 #include "interpreter.h"
 
+#include <algorithm>
+
 #include "lexer.h"
 #include "parser.h"
 
@@ -7,14 +9,8 @@ namespace smi::interpreter {
 
 using lexer::Tokens;
 
-std::vector<std::string> Interpreter::getMemoryKeys() {
-    std::vector<std::string> keys;
-
-    for (auto pair : this->memory) {
-        keys.push_back(pair.first);
-    }
-
-    return keys;
+const std::vector<std::string>& Interpreter::getMemoryKeys() {
+    return this->memory_keys;
 }
 
 uint16_t Interpreter::getMemoryValue(std::string key) {
@@ -146,6 +142,9 @@ int Interpreter::evalInstruction(Instruction* inst) {
 
 void Interpreter::evalAssignment(Assignment* as) {
     memory[as->getName()] = std::stoi(as->getValue(), 0, 16);
+
+    if (std::find(memory_keys.begin(), memory_keys.end(), as->getName()) == memory_keys.end())
+        memory_keys.push_back(as->getName());
 }
 
 }  // namespace smi::interpreter
