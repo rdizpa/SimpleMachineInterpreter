@@ -303,6 +303,11 @@ h3, h4 {
     color: light-dark(#0fa16e, #06b906);
 }
 
+.comment {
+    font-style: italic;
+    color: #808080;
+}
+
 ::highlight(error) {
     text-decoration: red wavy underline;
 }

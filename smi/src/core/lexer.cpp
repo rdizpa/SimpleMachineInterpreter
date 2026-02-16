@@ -27,6 +27,14 @@ int tokenize(const std::string& code, Tokens& tokens) {
                 line++;
                 lineStart = pos + 1;
                 break;
+            case ';':
+                while (pos < code.length() && code[pos] != '\n') pos++;
+
+                if (pos < code.length()) {
+                    line++;
+                    lineStart = pos + 1;
+                }
+                break;
             case ',':
                 tokens.push_back(TOKEN_NEW(TokenType::COMMA, ",", pos, line, pos - lineStart + 1));
                 break;
