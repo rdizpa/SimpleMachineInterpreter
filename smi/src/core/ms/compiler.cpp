@@ -38,7 +38,7 @@ int MSCompiler::compile(const std::string& code, std::string& result) {
                     return COMPILER_ERR_FILE_TOO_LONG;
                 }
 
-                if (tk > 0 && tokens[tk - 1].type == TokenType::LABEL) {
+                if (tk > 1 && tokens[tk - 2].type == TokenType::LABEL) {
                     this->pos++;
                 }
 
@@ -125,7 +125,7 @@ int MSCompiler::compile(const std::string& code, std::string& result) {
             }
 
             case TokenType::LABEL: {
-                if (tk > 0 && tokens[tk - 1].type == TokenType::LABEL) {
+                if (tk > 1 && tokens[tk - 2].type == TokenType::LABEL) {
                     this->pos++;
                 }
             }
