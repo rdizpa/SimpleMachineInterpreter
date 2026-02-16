@@ -14,6 +14,7 @@ body {
     margin: 0;
     padding: 0;
     height: 100vh;
+    height: 100dvh;
     background-color: light-dark(white, #121212);
 }
 
