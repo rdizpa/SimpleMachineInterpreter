@@ -2,32 +2,18 @@
 
 #include <string.h>
 
-#include "core/interpreter.h"
-#include "core/ms/compiler.h"
-#include "core/ms/decompiler.h"
+#include "smi_cast.h"
 
-struct SMI {
-    smi::interpreter::Interpreter interp;
-};
-
-struct SMIMSDecompiler {
-    smi::ms::decompiler::MSDecompiler decompiler;
-};
-
-struct SMIMSCompiler {
-    smi::ms::compiler::MSCompiler compiler;
-};
-
-SMI* smi_new() {
-    return new SMI();
+SMIInterpreter* smi_interpreter_new() {
+    return cast(new smi::interpreter::Interpreter());
 }
 
-void smi_destroy(SMI* interp) {
-    delete interp;
+void smi_interpreter_destroy(SMIInterpreter* interp) {
+    delete cast(interp);
 }
 
-int smi_eval(SMI* interp, const char* code) {
-    switch (interp->interp.eval(code)) {
+int smi_interpreter_eval(SMIInterpreter* interp, const char* code) {
+    switch (cast(interp)->eval(code)) {
         case smi::interpreter::INTERPRETER_OK:
             return SMI_OK;
         case smi::interpreter::INTERPRETER_ERR_INVALID_TOKEN:
@@ -41,13 +27,13 @@ int smi_eval(SMI* interp, const char* code) {
     }
 }
 
-const char** smi_memory_keys_get(SMI* interp) {
-    int size = interp->interp.getMemoryKeys().size();
+const char** smi_interpreter_memory_keys_get(SMIInterpreter* interp) {
+    int size = cast(interp)->getMemoryKeys().size();
     int i = 0;
 
     const char** keys = new const char*[size + 1];
 
-    for (auto& key : interp->interp.getMemoryKeys()) {
+    for (auto& key : cast(interp)->getMemoryKeys()) {
         keys[i] = (char*)malloc(key.size() + 1);
 
         strcpy((char*)keys[i++], key.c_str());
@@ -58,7 +44,7 @@ const char** smi_memory_keys_get(SMI* interp) {
     return keys;
 }
 
-void smi_memory_keys_free(const char** keys) {
+void smi_interpreter_memory_keys_free(const char** keys) {
     int i = 0;
 
     while (keys[i] != NULL) {
@@ -68,8 +54,8 @@ void smi_memory_keys_free(const char** keys) {
     delete[] keys;
 }
 
-uint16_t smi_memory_value_get(SMI* interp, const char* key) {
-    return interp->interp.getMemoryValue(key);
+uint16_t smi_interpreter_memory_value_get(SMIInterpreter* interp, const char* key) {
+    return cast(interp)->getMemoryValue(key);
 }
 
 void smi_last_error_data_get(SMIErrorData* error) {
@@ -83,17 +69,17 @@ void smi_last_error_data_get(SMIErrorData* error) {
 }
 
 SMIMSDecompiler* smi_msdecompiler_new() {
-    return new SMIMSDecompiler();
+    return cast(new smi::ms::decompiler::MSDecompiler());
 }
 
 void smi_msdecompiler_destroy(SMIMSDecompiler* decompiler) {
-    delete decompiler;
+    delete cast(decompiler);
 }
 
 const char* smi_msdecompiler_decompile(SMIMSDecompiler* decompiler, const char* code, int size) {
     std::string result;
 
-    if (decompiler->decompiler.decompile(code, size, result) != smi::ms::decompiler::DECOMPILER_OK) return NULL;
+    if (cast(decompiler)->decompile(code, size, result) != smi::ms::decompiler::DECOMPILER_OK) return NULL;
 
     char* ptr = (char*)malloc(result.length() + 1);
     strcpy(ptr, result.c_str());
@@ -102,17 +88,17 @@ const char* smi_msdecompiler_decompile(SMIMSDecompiler* decompiler, const char* 
 }
 
 SMIMSCompiler* smi_mscompiler_new() {
-    return new SMIMSCompiler();
+    return cast(new smi::ms::compiler::MSCompiler());
 }
 
 void smi_mscompiler_destroy(SMIMSCompiler* compiler) {
-    delete compiler;
+    delete cast(compiler);
 }
 
 const char* smi_mscompiler_compile(SMIMSCompiler* compiler, const char* code, int size, int* sizeout) {
     std::string result;
 
-    if (compiler->compiler.compile(std::string(code, size), result) != smi::ms::compiler::COMPILER_OK) return NULL;
+    if (cast(compiler)->compile(std::string(code, size), result) != smi::ms::compiler::COMPILER_OK) return NULL;
 
     char* ptr = (char*)malloc(result.length());
     memcpy(ptr, result.c_str(), result.length());

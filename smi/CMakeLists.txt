@@ -25,12 +25,12 @@ set(LIBSMI_SOURCES
 )
 
 set(EXPORTED_FUNCTIONS
-    "_smi_new"
-    "_smi_destroy"
-    "_smi_eval"
-    "_smi_memory_keys_get"
-    "_smi_memory_keys_free"
-    "_smi_memory_value_get"
+    "_smi_interpreter_new"
+    "_smi_interpreter_destroy"
+    "_smi_interpreter_eval"
+    "_smi_interpreter_memory_keys_get"
+    "_smi_interpreter_memory_keys_free"
+    "_smi_interpreter_memory_value_get"
     "_smi_last_error_data_get"
     "_smi_msdecompiler_new"
     "_smi_msdecompiler_destroy"
@@ -60,7 +60,7 @@ if (NOT EMSCRIPTEN)
 
     install(TARGETS smi RUNTIME DESTINATION bin)
 else()
-    add_executable(smiwasmout "src/api/smi.cpp" ${LIBSMI_SOURCES})
+    add_executable(smiwasmout "src/api/smi.cpp" "src/api/smi_cast.cpp" ${LIBSMI_SOURCES})
 
     target_include_directories(smiwasmout
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src

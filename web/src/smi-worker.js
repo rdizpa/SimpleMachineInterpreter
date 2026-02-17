@@ -1,8 +1,8 @@
-import SMI from "./smi.js";
+import SMI, { SMIInterpreter } from "./smi.js";
 
 onmessage = (e) => {
     if (e.data.type === "run") {
-        const smi = new SMI();
+        const smi = SMIInterpreter();
 
         let code;
         

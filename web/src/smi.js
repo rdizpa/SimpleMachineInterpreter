@@ -5,31 +5,31 @@ const Module = await createModule({
     locateFile: (path) => smiwasmout
 });
 
-function SMI() {
-    const _SMI = Module._smi_new();
+function SMIInterpreter() {
+    const _SMIInterpreter = Module._smi_interpreter_new();
 
     return {
-        destroy: () => Module._smi_destroy(_SMI),
-        eval: (code) => Module.ccall("smi_eval", "number", ["number", "string"], [_SMI, code]),
-        getMemoryValue: (key) => Module.ccall("smi_memory_value_get", "number", ["number", "string"], [_SMI, key]),
+        destroy: () => Module._smi_interpreter_destroy(_SMIInterpreter),
+        eval: (code) => Module.ccall("smi_interpreter_eval", "number", ["number", "string"], [_SMIInterpreter, code]),
+        getMemoryValue: (key) => Module.ccall("smi_interpreter_memory_value_get", "number", ["number", "string"], [_SMIInterpreter, key]),
         getMemoryKeys: () => {
             const keys = [];
 
-            let arrayPointer = Module.ccall("smi_memory_keys_get", "number", ["number"], [_SMI]);
+            let arrayPointer = Module.ccall("smi_interpreter_memory_keys_get", "number", ["number"], [_SMIInterpreter]);
 
             while (Module.getValue(arrayPointer, "i32") != 0) {
                 keys.push(Module.UTF8ToString(Module.getValue(arrayPointer, "i32")));
                 arrayPointer += 4;
             }
 
-            Module.ccall("smi_memory_keys_free", null, ["number"], [arrayPointer]);
+            Module.ccall("smi_interpreter_memory_keys_free", null, ["number"], [arrayPointer]);
 
             return keys;
         }
     };
 };
 
-SMI.getLastErrorData = () => {
+const getLastErrorData = () => {
     const _errorData = Module._malloc(20);
     Module.ccall("smi_last_error_data_get", null, ["number"], [_errorData]);
 
@@ -108,5 +108,5 @@ Object.keys(Module).forEach((key) => {
         SMIError[key] = Module[key];
 });
 
-export default SMI;
-export { SMICompiler, SMIDecompiler, SMIError };
+export default { getLastErrorData };
+export { SMIInterpreter, SMICompiler, SMIDecompiler, SMIError };

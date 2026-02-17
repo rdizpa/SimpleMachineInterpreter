@@ -8,19 +8,16 @@ extern "C" {
 #endif
 
 #include "smi_errors.h"
+#include "smi_types.h"
 
-typedef struct SMI SMI;
-typedef struct SMIMSDecompiler SMIMSDecompiler;
-typedef struct SMIMSCompiler SMIMSCompiler;
+SMIInterpreter* smi_interpreter_new();
+void smi_interpreter_destroy(SMIInterpreter* interp);
 
-SMI* smi_new();
-void smi_destroy(SMI* interp);
+int smi_interpreter_eval(SMIInterpreter* interp, const char* code);
 
-int smi_eval(SMI* interp, const char* code);
-
-const char** smi_memory_keys_get(SMI* interp);
-void smi_memory_keys_free(const char** keys);
-uint16_t smi_memory_value_get(SMI* interp, const char* key);
+const char** smi_interpreter_memory_keys_get(SMIInterpreter* interp);
+void smi_interpreter_memory_keys_free(const char** keys);
+uint16_t smi_interpreter_memory_value_get(SMIInterpreter* interp, const char* key);
 
 void smi_last_error_data_get(SMIErrorData* error);
 
