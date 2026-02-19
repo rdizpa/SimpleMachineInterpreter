@@ -360,7 +360,7 @@ const wait = (time) => {
 }
 
 async function debuggerRunUntilBreakpoint() {
-    while (smiDebugger.hasNext()) {
+    while (smiDebugger && smiDebugger.hasNext()) {
         if (smiDebugger.next() !== 0) {
             showError(SMI.getLastErrorData());
             
@@ -374,6 +374,9 @@ async function debuggerRunUntilBreakpoint() {
 
         await wait(10);
     }
+
+    if (!smiDebugger)
+        return;
 
     if (!smiDebugger.hasNext()) {
         document.getElementById("debug-stop").click();
@@ -403,7 +406,7 @@ document.getElementById("debug").addEventListener("click", () => {
 });
 
 document.getElementById("debug-step").addEventListener("click", () => {
-    if (!smiDebugger.hasNext())
+    if (!smiDebugger || !smiDebugger.hasNext())
         return;
     
     if (smiDebugger.next() !== 0) {
@@ -428,6 +431,7 @@ document.getElementById("debug-stop").addEventListener("click", () => {
     editor.disabled = false;
 
     smiDebugger.destroy();
+    smiDebugger = null;
 });
 
 document.getElementById("share").addEventListener("click", () => {
