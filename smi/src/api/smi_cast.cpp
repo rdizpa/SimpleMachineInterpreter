@@ -8,6 +8,14 @@ SMIInterpreter* cast(smi::interpreter::Interpreter* interp) {
     return reinterpret_cast<SMIInterpreter*>(interp);
 }
 
+smi::debugger::Debugger* cast(SMIDebugger* debugger) {
+    return reinterpret_cast<smi::debugger::Debugger*>(debugger);
+}
+
+SMIDebugger* cast(smi::debugger::Debugger* debugger) {
+    return reinterpret_cast<SMIDebugger*>(debugger);
+}
+
 smi::ms::compiler::MSCompiler* cast(SMIMSCompiler* compiler) {
     return reinterpret_cast<smi::ms::compiler::MSCompiler*>(compiler);
 }

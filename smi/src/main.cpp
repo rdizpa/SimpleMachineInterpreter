@@ -2,12 +2,14 @@
 #include <iostream>
 #include <sstream>
 
+#include "core/debugger.h"
 #include "core/interpreter.h"
 #include "core/ms/compiler.h"
 #include "core/ms/decompiler.h"
 
 typedef enum {
     RUN,
+    DEBUG,
     DECOMPILE,
     COMPILE
 } OptionType;
@@ -37,8 +39,10 @@ int main(int argc, char* argv[]) {
     OptionType option = OptionType::RUN;
     std::string filename = argv[1];
 
-    if (filename == "-d" || filename == "-c") {
-        option = (filename == "-d") ? OptionType::DECOMPILE : OptionType::COMPILE;
+    if (filename == "-d" || filename == "-c" || filename == "-e") {
+        option = (filename == "-d")   ? OptionType::DECOMPILE
+                 : (filename == "-c") ? OptionType::COMPILE
+                                      : OptionType::DEBUG;
         filename = argv[2];
     }
 
@@ -95,6 +99,45 @@ int main(int argc, char* argv[]) {
 
             std::cout << result << std::endl << std::endl;
             code = result;
+        }
+
+        if (option == OptionType::DEBUG) {
+            smi::debugger::Debugger deb;
+
+            if (deb.load(code) != smi::debugger::DEBUGGER_OK) {
+                std::cout << "Error" << std::endl;
+                return 1;
+            }
+
+            for (auto key : deb.getMemoryKeys()) {
+                std::cout << key << "\t" << std::hex << deb.getMemoryValue(key) << std::endl;
+            }
+
+            while (deb.hasNext()) {
+                int index = deb.getNextIndex();
+                int end = index;
+
+                while (end < code.length() && code[end] != '\n') {
+                    end++;
+                }
+
+                std::cout << ">>> " << code.substr(index, end - index) << std::endl;
+
+                getchar();
+
+                if (deb.next() != smi::debugger::DEBUGGER_OK) {
+                    std::cout << "Error" << std::endl;
+                    return 1;
+                }
+
+                for (auto key : deb.getMemoryKeys()) {
+                    std::cout << key << "\t" << std::hex << deb.getMemoryValue(key) << std::endl;
+                }
+
+                std::cout << std::endl;
+            }
+
+            return 0;
         }
 
         if (interp.eval(code) != smi::interpreter::INTERPRETER_OK) {

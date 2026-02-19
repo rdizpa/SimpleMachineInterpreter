@@ -68,6 +68,39 @@ void smi_last_error_data_get(SMIErrorData* error) {
     error->message = _error.message.c_str();
 }
 
+SMIDebugger* smi_debugger_new() {
+    return cast(new smi::debugger::Debugger());
+}
+
+void smi_debugger_destroy(SMIDebugger* debugger) {
+    delete cast(debugger);
+}
+
+int smi_debugger_load(SMIDebugger* debugger, const char* code) {
+    return cast(debugger)->load(code);
+}
+
+int smi_debugger_next(SMIDebugger* debugger) {
+    return cast(debugger)->next();
+}
+
+int smi_debugger_next_index_get(SMIDebugger* debugger) {
+    return cast(debugger)->getNextIndex();
+}
+
+int smi_debugger_next_line_get(SMIDebugger* debugger) {
+    return cast(debugger)->getNextLine();
+}
+
+bool smi_debugger_has_next(SMIDebugger* debugger) {
+    return cast(debugger)->hasNext();
+}
+
+SMIInterpreter* smi_debugger_as_interpreter(SMIDebugger* debugger) {
+    smi::interpreter::Interpreter* interp = cast(debugger);
+    return cast(interp);
+}
+
 SMIMSDecompiler* smi_msdecompiler_new() {
     return cast(new smi::ms::decompiler::MSDecompiler());
 }

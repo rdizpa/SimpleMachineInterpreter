@@ -24,6 +24,8 @@ class Interpreter {
     std::unordered_map<std::string, uint16_t> memory;
     std::unordered_map<std::string, uint16_t> labels;
     bool cmp;
+
+   protected:
     int pc;
 
     int eval(Node* node);

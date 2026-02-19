@@ -2,6 +2,7 @@
 #define _SMI_TYPES_H_
 
 typedef struct SMIInterpreter SMIInterpreter;
+typedef struct SMIDebugger SMIDebugger;
 typedef struct SMIMSDecompiler SMIMSDecompiler;
 typedef struct SMIMSCompiler SMIMSCompiler;
 

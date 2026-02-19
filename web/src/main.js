@@ -1,6 +1,6 @@
 import "./style.css"
 
-import SMI, { SMICompiler, SMIDecompiler } from "./smi";
+import SMI, { SMIDebugger, SMICompiler, SMIDecompiler } from "./smi";
 import SMIWorker from "./smi-worker.js?worker";
 
 const editor = document.getElementById("editor");
@@ -174,10 +174,18 @@ const updateLineNumberColumn = () => {
     let str = "";
 
     for (let i = 0; i < lines; i++)
-        str += `${i + 1}\n`;
+        str += `<span data-line="${i + 1}">${i + 1}</span>`;
 
-    lineNumberColumn.innerText = str;
+    lineNumberColumn.innerHTML = str;
     lineNumberColumn.dataset.lines = lines;
+
+    lineNumberColumn.onclick = (ev) => {
+        if (ev.target.tagName !== "SPAN")
+            return;
+
+        toggleBreakpoint(parseInt(ev.target.dataset.line));
+        ev.target.dataset.breakpoint = (hasBreakpoint(parseInt(ev.target.dataset.line)) ? "true" : "false");
+    };
 };
 
 const setEditorContent = (content, updateURL = false) => {
@@ -305,6 +313,123 @@ stopBtn.addEventListener("click", () => {
     runBtn.disabled = false;
 });
 
+let smiDebugger = null;
+const breakpoints = new Set();
+
+function addBreakpoint(line) {
+    breakpoints.add(line);
+}
+
+function removeBreakpoint(line) {
+    breakpoints.delete(line);
+}
+
+function hasBreakpoint(line) {
+    return breakpoints.has(line);
+}
+
+function toggleBreakpoint(line) {
+    if (hasBreakpoint(line)) {
+        removeBreakpoint(line);
+    } else {
+        addBreakpoint(line);
+    }
+}
+
+function debuggerShowMemory() {
+    output.innerHTML = "";
+
+    const memory = smiDebugger.getMemoryKeys();
+
+    for (const key of memory) {
+        const value = smiDebugger.getMemoryValue(key);
+        output.insertAdjacentHTML("beforeend",
+            `<div class="row"><div>${key}</div><div>0x${value.toString(16)}</div><div>${value}</div></div>`
+        );
+    }
+
+    editorHighlight.style.setProperty("--debugger-line-pos", `${smiDebugger.getNextLine() - 1}lh`);
+}
+
+const wait = (time) => {
+    const { promise, resolve } = Promise.withResolvers();
+
+    setTimeout(resolve, time);
+
+    return promise;
+}
+
+async function debuggerRunUntilBreakpoint() {
+    while (smiDebugger.hasNext()) {
+        if (smiDebugger.next() !== 0) {
+            showError(SMI.getLastErrorData());
+            
+            return;
+        }
+
+        debuggerShowMemory();
+
+        if (hasBreakpoint(smiDebugger.getNextLine()))
+            break;
+
+        await wait(10);
+    }
+
+    if (!smiDebugger.hasNext()) {
+        document.getElementById("debug-stop").click();
+    }
+}
+
+document.getElementById("debug-run").addEventListener("click", () => {
+    debuggerRunUntilBreakpoint();
+});
+
+document.getElementById("debug").addEventListener("click", () => {
+    document.getElementById("toolbar").classList.add("hidden");
+    document.getElementById("debug-toolbar").classList.remove("hidden");
+    editor.disabled = true;
+
+    smiDebugger = SMIDebugger();
+    
+    if (smiDebugger.load(editor.value) !== 0) {
+        showError(SMI.getLastErrorData());
+
+        return;
+    }
+
+    debuggerShowMemory();
+    
+    editorHighlight.classList.remove("hidden-after");
+});
+
+document.getElementById("debug-step").addEventListener("click", () => {
+    if (!smiDebugger.hasNext())
+        return;
+    
+    if (smiDebugger.next() !== 0) {
+        showError(SMI.getLastErrorData());
+        
+        return;
+    }
+
+    debuggerShowMemory();
+
+    if (!smiDebugger.hasNext()) {
+        document.getElementById("debug-stop").click();
+    }
+});
+
+document.getElementById("debug-stop").addEventListener("click", () => {
+    document.getElementById("debug-toolbar").classList.add("hidden");
+    document.getElementById("toolbar").classList.remove("hidden");
+
+    editorHighlight.classList.add("hidden-after");
+
+    editor.disabled = false;
+
+    smiDebugger.destroy();
+});
+
 document.getElementById("share").addEventListener("click", () => {
     navigator.clipboard.writeText(document.location.href).then(() => {
         alert("URL copied to clipboard");
@@ -387,7 +512,11 @@ document.getElementById("open").addEventListener("click", () => {
 });
 
 document.addEventListener("keydown", (ev) => {
-    if (ev.key === "F9") {
+    if (ev.key === "F2") {
+        ev.preventDefault();
+
+        document.getElementById("debug-step").click();
+    } else if (ev.key === "F9") {
         ev.preventDefault();
 
         runBtn.click();

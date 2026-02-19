@@ -111,11 +111,50 @@ body {
     overflow: auto;
 }
 
+#editor-highlight::after {
+    content: "";
+    position: absolute;
+    margin: 10px 5px;
+    left: 0;
+    right: 0;
+    top: var(--debugger-line-pos, 0lh);
+    height: 1lh;
+    background-color: #ffff0055;
+}
+
+.hidden-after::after {
+    display: none;
+}
+
 .line-number-column {
     padding: 10px 5px;
     text-align: right;
-    width: 50px;
+    width: 55px;
     overflow: hidden;
+}
+
+.line-number-column span {
+    display: block;
+    position: relative;
+}
+
+.line-number-column span::before {
+    position: absolute;
+    display: block;
+    top: 15%;
+    height: 70%;
+    aspect-ratio: 1;
+    border-radius: 100px;
+}
+
+.line-number-column span:hover::before {
+    content: "";
+    background-color: #750000;
+}
+
+.line-number-column span[data-breakpoint="true"]::before {
+    content: "";
+    background-color: red;
 }
 
 .output {

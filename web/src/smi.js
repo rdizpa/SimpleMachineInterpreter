@@ -46,6 +46,35 @@ const getLastErrorData = () => {
     return errorData;
 };
 
+function SMIDebugger() {
+    const _SMIDebugger = Module._smi_debugger_new();
+    const _SMIDebuggerInterp = Module.ccall("smi_debugger_as_interpreter", "number", ["number"], [_SMIDebugger]);
+
+    return {
+        destroy: () => Module._smi_debugger_destroy(_SMIDebugger),
+        load: (code) => Module.ccall("smi_debugger_load", "number", ["number", "string"], [_SMIDebugger, code]),
+        next: () => Module.ccall("smi_debugger_next", "number", ["number"], [_SMIDebugger]),
+        hasNext: () => Module.ccall("smi_debugger_has_next", "boolean", ["number"], [_SMIDebugger]),
+        getNextIndex: () => Module.ccall("smi_debugger_next_index_get", "number", ["number"], [_SMIDebugger]),
+        getNextLine: () => Module.ccall("smi_debugger_next_line_get", "number", ["number"], [_SMIDebugger]),
+        getMemoryValue: (key) => Module.ccall("smi_interpreter_memory_value_get", "number", ["number", "string"], [_SMIDebuggerInterp, key]),
+        getMemoryKeys: () => {
+            const keys = [];
+
+            let arrayPointer = Module.ccall("smi_interpreter_memory_keys_get", "number", ["number"], [_SMIDebuggerInterp]);
+
+            while (Module.getValue(arrayPointer, "i32") != 0) {
+                keys.push(Module.UTF8ToString(Module.getValue(arrayPointer, "i32")));
+                arrayPointer += 4;
+            }
+
+            Module.ccall("smi_interpreter_memory_keys_free", null, ["number"], [arrayPointer]);
+
+            return keys;
+        }
+    };
+}
+
 function SMIDecompiler() {
     const _SMIDecompiler = Module._smi_msdecompiler_new();
 
@@ -109,4 +138,4 @@ Object.keys(Module).forEach((key) => {
 });
 
 export default { getLastErrorData };
-export { SMIInterpreter, SMICompiler, SMIDecompiler, SMIError };
+export { SMIInterpreter, SMIDebugger, SMICompiler, SMIDecompiler, SMIError };
