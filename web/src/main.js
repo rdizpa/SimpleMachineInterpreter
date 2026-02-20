@@ -272,8 +272,8 @@ let worker = new SMIWorker();
 runBtn.addEventListener("click", () => {
     if (editor.value.length == 0) return;
     output.innerHTML = "";
-    runBtn.disabled = true;
-    stopBtn.disabled = false;
+    runBtn.classList.add("hidden");
+    stopBtn.classList.remove("hidden");
 
     worker.onmessage = (ev) => {
         if (ev.data.type !== "result" && ev.data.type !== "error")
@@ -292,8 +292,8 @@ runBtn.addEventListener("click", () => {
             );
         }
 
-        stopBtn.disabled = true;
-        runBtn.disabled = false;
+        stopBtn.classList.add("hidden");
+        runBtn.classList.remove("hidden");
     };
 
     console.time("EvalCode");
@@ -309,8 +309,8 @@ stopBtn.addEventListener("click", () => {
 
     console.timeEnd("EvalCode");
 
-    stopBtn.disabled = true;
-    runBtn.disabled = false;
+    stopBtn.classList.add("hidden");
+    runBtn.classList.remove("hidden");
 });
 
 let smiDebugger = null;
@@ -522,6 +522,9 @@ document.addEventListener("keydown", (ev) => {
         document.getElementById("debug-step").click();
     } else if (ev.key === "F9") {
         ev.preventDefault();
+
+        if (runBtn.classList.contains("hidden"))
+            return;
 
         runBtn.click();
     } else if (ev.ctrlKey) {
