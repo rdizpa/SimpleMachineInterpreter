@@ -122,6 +122,22 @@ body {
     background-color: #ffff0055;
 }
 
+.editor-line {
+    height: 1lh;
+}
+
+.editor-line::after {
+    content: attr(data-error);
+    position: absolute;
+    color: red;
+    margin-left: 25px;
+    white-space: break-spaces;
+}
+
+.editor-line:not([data-error])::after {
+    content: none;
+}
+
 .hidden-after::after {
     display: none;
 }

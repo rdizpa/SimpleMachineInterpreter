@@ -50,14 +50,14 @@ const normalize = () => {
     editor.selectionEnd = selStart;
 };
 
-const getNodeAtPosition = (pos, endNode = false) => {
+const getNodeAtPosition = (lineNode, pos, endNode = false) => {
     let i = 0;
     let lastI = 0;
     let nodeIndex = 0;
 
-    while (i <= pos && nodeIndex < editorHighlight.childNodes.length) {
+    while (i <= pos && nodeIndex < lineNode.childNodes.length) {
         lastI = i;
-        i += editorHighlight.childNodes[nodeIndex].textContent.length;
+        i += lineNode.childNodes[nodeIndex].textContent.length;
 
         if (i > pos)
             break;
@@ -68,31 +68,47 @@ const getNodeAtPosition = (pos, endNode = false) => {
         nodeIndex++;
     }
 
-    if (nodeIndex >= editorHighlight.childNodes.length)
+    if (nodeIndex >= lineNode.childNodes.length)
         return null;
     
     return {
-        node: editorHighlight.childNodes[nodeIndex],
+        node: lineNode.childNodes[nodeIndex],
         i: lastI
     };
 };
 
+const INSTRUCTIONS_RE = new RegExp(`\\b(${INSTRUCTIONS.join("|")})\\b`, "g");
+const NUMBER_RE = /\b:[ \t]*((?:0[xX])?[0-9A-Fa-f]+)\b/gd;
+const LABEL_RE = /\b([A-Z0-9a-z]+)\b:/gd;
+const COMMENT_RE = /(;[^\n]*)/gd;
+const NEWLINE_RE = /(\n)/gd;
+const COLORIZE_RE = new RegExp(`(?:\\b(${INSTRUCTIONS.join("|")})\\b|\\b([A-Z0-9a-z]+)\\b:|(;[^\\n]*)|(\\n))`, "gd");
+
 const colorize = () => {
     const code = editor.value;
-    const matches = code.matchAll(new RegExp(`\\b(${INSTRUCTIONS.join("|")})\\b`, "g"));
     const res = [];
+    const labels = new Set();
 
-    matches.forEach(m => {
+    for (const m of code.matchAll(COLORIZE_RE)) {
+        const [_, instruction, label, comment, newline] = m;
+
+        const type = instruction ? "instruction" : label ? "label" : comment ? "comment" : "newline";
+        const i = instruction ? 1 : label ? 2 : comment ? 3 : 4;
+
         res.push({
-            type: "instruction",
-            offset: m.index,
-            length : m[0].length,
-            start: m.index,
-            end: m.index + m[0].length
-        })
-    });
+            type,
+            offset: m.indices[i][0],
+            length : m[i].length,
+            start: m.indices[i][0],
+            end: m.indices[i][1]
+        });
 
-    code.matchAll(/\b:[ \t]*((?:0[xX])?[0-9A-Fa-f]+)\b/gd).forEach(m => {
+        if (type === "label") {
+            labels.add(m[i]);
+        }
+    }
+
+    for (const m of code.matchAll(NUMBER_RE)) {
         res.push({
             type: "number",
             offset: m.indices[1][0],
@@ -100,18 +116,10 @@ const colorize = () => {
             start: m.indices[1][0],
             end: m.indices[1][1]
         });
-    });
+    }
 
-    code.matchAll(/\b([A-Z0-9a-z]+)\b:/gd).forEach(m => {
-        res.push({
-            type: "label",
-            offset: m.indices[1][0],
-            length : m[1].length,
-            start: m.indices[1][0],
-            end: m.indices[1][1]
-        });
-
-        code.matchAll(new RegExp(`\\b(${m[1]})\\b([^:]|$)`, "gd")).forEach(l => {
+    for (const label of labels) {
+        for (const l of code.matchAll(new RegExp(`\\b(${label})\\b([^:]|$)`, "gd"))) {
             res.push({
                 type: "var",
                 offset: l.indices[1][0],
@@ -119,33 +127,12 @@ const colorize = () => {
                 start: l.indices[1][0],
                 end: l.indices[1][1]
             });
-        });
-
-    });
-
-    code.matchAll(/(;[^\n]*)/gd).forEach(m => {
-        res.push({
-            type: "comment",
-            offset: m.indices[1][0],
-            length : m[1].length,
-            start: m.indices[1][0],
-            end: m.indices[1][1]
-        });
-    });
-
-    code.matchAll(/(\n)/gd).forEach(m => {
-        res.push({
-            type: "newline",
-            offset: m.indices[1][0],
-            length : m[1].length,
-            start: m.indices[1][0],
-            end: m.indices[1][1]
-        });
-    });
+        }
+    }
 
     res.sort((a, b) => a.start - b.start);
 
-    let codeResult = "";
+    let codeResult = `<div class="editor-line">`;
     let lastIndex = 0;
 
     for (const tk of res) {
@@ -154,12 +141,16 @@ const colorize = () => {
 
         codeResult += `<span>${code.substring(lastIndex, tk.start)}</span>`;
 
-        codeResult += `<span class="${tk.type}">${code.substring(tk.start, tk.end)}</span>`;
+        if (tk.type === "newline") {
+            codeResult += `</div><div class="editor-line">`;
+        } else {
+            codeResult += `<span class="${tk.type}">${code.substring(tk.start, tk.end)}</span>`;
+        }
 
         lastIndex = tk.end;
     }
 
-    codeResult += `<span>${code.substring(lastIndex)}</span><br/>`;
+    codeResult += `<span>${code.substring(lastIndex)}</span></div>`;
 
     editorHighlight.innerHTML = codeResult;
 }
@@ -222,6 +213,10 @@ function clearError() {
     error.style.transform = "";
     error.classList.remove("unknown-error");
 
+    document.querySelectorAll(".editor-line[data-error]").forEach(de => {
+        de.removeAttribute("data-error");
+    });
+
     if (ranges.length > 0) {
         ranges.forEach(range => highlights["ERROR"].delete(range));
         ranges = [];
@@ -230,39 +225,30 @@ function clearError() {
 
 function showError(errordata) {
     const unknownError = typeof errordata !== "object";
-    error.innerText = unknownError ? errordata : errordata.message;
-    error.style.display = "block";
     
     if (!unknownError && errordata.index < editor.value.length) {
-        const range = new Range();
-        const node = getNodeAtPosition(errordata.index);
-        const endNode = getNodeAtPosition(errordata.index + errordata.length, true);
+        const { line } = errordata;
+        const lineNode = editorHighlight.childNodes[line - 1];
 
-        range.setStart(node.node.firstChild, errordata.index - node.i);
-        range.setEnd(endNode.node.firstChild, errordata.index - endNode.i + errordata.length);
+        const range = new Range();
+        const node = getNodeAtPosition(lineNode, errordata.column - 1);
+        const endNode = getNodeAtPosition(lineNode, errordata.column - 1 + errordata.length, true);
+        
+        range.setStart(node.node.firstChild, errordata.column - 1 - node.i);
+        range.setEnd(endNode.node.firstChild, errordata.column - 1 - endNode.i + errordata.length);
 
         ranges.push(range);
         highlights["ERROR"].add(range);
 
-        error.innerText = errordata.message;
+        lineNode.dataset.error = errordata.message;
     } else {
+        error.innerText = unknownError ? errordata : errordata.message;
+        error.style.display = "block";
         error.classList.add("unknown-error");
 
         setTimeout(() => {
             clearError();
         }, 4000);
-    }
-
-    if (ranges.length > 0) {
-        const errorRange = ranges[0].cloneRange();
-        let lineEndContainer = errorRange.endContainer.parentElement;
-
-        while (lineEndContainer.nextSibling != null && !lineEndContainer.textContent.includes("\n")) {
-            lineEndContainer = lineEndContainer.nextSibling
-        }
-
-        const rect = lineEndContainer.getBoundingClientRect();
-        error.style.transform = `translate(${rect.left + rect.width + 20}px,${rect.top}px)`;
     }
 }
 
