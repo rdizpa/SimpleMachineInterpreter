@@ -121,7 +121,7 @@ function SMICompiler() {
             if (ptr === 0)
                 return null;
 
-            const result = new Uint8Array(Module.HEAP8.buffer, ptr, size);
+            const result = new Uint8Array(Module.HEAP8.buffer.slice(ptr, ptr + size));
 
             Module._free(ptr);
 
