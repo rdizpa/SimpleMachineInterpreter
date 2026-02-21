@@ -376,7 +376,7 @@ document.getElementById("debug-run").addEventListener("click", () => {
 document.getElementById("debug").addEventListener("click", () => {
     document.getElementById("toolbar").classList.add("hidden");
     document.getElementById("debug-toolbar").classList.remove("hidden");
-    editor.disabled = true;
+    editor.readOnly = true;
 
     smiDebugger = SMIDebugger();
     
@@ -414,7 +414,7 @@ document.getElementById("debug-stop").addEventListener("click", () => {
 
     editorHighlight.classList.add("hidden-after");
 
-    editor.disabled = false;
+    editor.readOnly = false;
 
     smiDebugger.destroy();
     smiDebugger = null;
