@@ -6,6 +6,19 @@
 #include "smierror.h"
 
 const std::vector<std::string> INSTRUCTIONS = {"MOV", "ADD", "CMP", "BEQ"};
+static const std::string HEX_NUMBER = "0123456789abcdefABCDEF";
+
+static bool isHexNumber(const std::string& val) {
+    if (val.length() > 2 && val.at(0) == '0' && val.at(1) == 'x') {
+        return isHexNumber(val.substr(2));
+    }
+
+    for (char ch : val) {
+        if (HEX_NUMBER.find(ch) == std::string::npos) return false;
+    }
+
+    return true;
+}
 
 namespace smi::lexer {
 
@@ -62,6 +75,12 @@ int tokenize(const std::string& code, Tokens& tokens) {
                     pos--;
                 } else {
                     if (tokens.size() > 0 && tokens[tokens.size() - 1].type == TokenType::LABEL) {
+                        if (!isHexNumber(val)) {
+                            smi::error::setLastError(valStartPos, line, valStartPos - lineStart + 1, val.length(),
+                                                     "Invalid number '" + val + "'");
+                            return LEXER_ERR_INVALID_TOKEN;
+                        }
+
                         tokens.push_back(
                             TOKEN_NEW(TokenType::LITERAL, val, valStartPos, line, valStartPos - lineStart + 1));
                     } else {
