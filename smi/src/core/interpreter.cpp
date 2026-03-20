@@ -93,7 +93,7 @@ int Interpreter::evalInstruction(Instruction* inst) {
 
             return INTERPRETER_ERR_INCOMPATIBLE_LABEL_TYPE;
         } else {
-            const Identifier* opNotFound = isMemoryLabel(op1_val) ? op2 : op1;
+            const Identifier* opNotFound = (isMemoryLabel(op1_val) || isCodeLabel(op1_val)) ? op2 : op1;
 
             THROW_LABEL_NOT_FOUND_EXC(opNotFound->getValue(), opNotFound->index(), opNotFound->line(),
                                       opNotFound->column());
@@ -133,7 +133,7 @@ int Interpreter::evalInstruction(Instruction* inst) {
 
             return INTERPRETER_ERR_INCOMPATIBLE_LABEL_TYPE;
         } else {
-            const Identifier* opNotFound = isMemoryLabel(op1_val) ? op2 : op1;
+            const Identifier* opNotFound = (isMemoryLabel(op1_val) || isCodeLabel(op1_val)) ? op2 : op1;
 
             THROW_LABEL_NOT_FOUND_EXC(opNotFound->getValue(), opNotFound->index(), opNotFound->line(),
                                       opNotFound->column());

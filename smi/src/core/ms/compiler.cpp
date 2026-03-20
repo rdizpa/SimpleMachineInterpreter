@@ -66,6 +66,8 @@ int MSCompiler::compile(const std::string& code, std::string& result) {
                     return COMPILER_ERR_FILE_TOO_LONG;
                 }
 
+                this->lineMap[this->pos] = token.line;
+
                 this->pos++;
                 break;
             default:

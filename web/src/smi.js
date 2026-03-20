@@ -129,7 +129,51 @@ function SMICompiler() {
             Module._free(ptr);
 
             return result;
+        },
+        getLineMap: () => {
+            const lineMap = Array(128).fill(-1);
+
+            const ptr = Module.ccall("smi_mscopiler_linemap_get", "number", ["number"], [_SMICompiler]);
+
+            for (let pos = 0; pos < 128; pos++) {
+                lineMap[pos] = Module.getValue(ptr + pos * 4, "i32");
+            }
+
+            return lineMap;
         }
+    };
+}
+
+function SMIVM() {
+    const _SMIVM = Module._smi_msvm_new();
+
+    return {
+        destroy: () => Module._smi_msvm_destroy(_SMIVM),
+        loadMS: (ms) => Module.ccall("smi_msvm_loadms", null, ["number", "array"], [_SMIVM, ms]),
+        executeNext: () => Module.ccall("smi_msvm_execute_next", "number", ["number"], [_SMIVM]),
+        getPC: () => Module.ccall("smi_msvm_pc_get", "number", ["number"], [_SMIVM]),
+        getIR: () => Module.ccall("smi_msvm_ir_get", "number", ["number"], [_SMIVM]),
+        getZF: () => Module.ccall("smi_msvm_zf_get", "number", ["number"], [_SMIVM]),
+        getLabels: () => {
+            const keys = [];
+
+            let arrayPointer = Module.ccall("smi_msvm_labels_get", "number", ["number"], [_SMIVM]);
+
+            while (Module.getValue(arrayPointer, "i32") != 0) {
+                keys.push(Module.UTF8ToString(Module.getValue(arrayPointer, "i32")));
+                arrayPointer += 4;
+            }
+
+            Module.ccall("smi_msvm_labels_free", null, ["number"], [arrayPointer]);
+
+            return keys;
+        },
+        getLabel: (label) => Module.ccall("smi_msvm_label_get", "number", ["number", "string"], [_SMIVM, label]),
+        getMemory: () => {
+            const ptr = Module.ccall("smi_msvm_memory_get", "number", ["number"], [_SMIVM]);
+            return Module.HEAPU16.subarray(ptr / 2, ptr / 2 + 128);
+        },
+        getMemoryValue: (pos) => Module.ccall("smi_msvm_memory_value_get", "number", ["number", "number"], [_SMIVM, pos])
     };
 }
 
@@ -141,4 +185,4 @@ Object.keys(Module).forEach((key) => {
 });
 
 export default { getLastErrorData };
-export { SMIInterpreter, SMIDebugger, SMICompiler, SMIDecompiler, SMIError };
+export { SMIInterpreter, SMIDebugger, SMICompiler, SMIDecompiler, SMIVM, SMIError };

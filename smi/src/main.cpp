@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     smi::interpreter::Interpreter interp;
 
     if (argc < 2) {
-        std::cout << "Usage: smi [ -d | -c ] [file]" << std::endl;
+        std::cout << "Usage: smi [ -d | -c | -e ] file" << std::endl;
         return 0;
     }
 

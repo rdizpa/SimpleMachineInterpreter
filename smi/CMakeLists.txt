@@ -24,6 +24,8 @@ set(LIBSMI_SOURCES
     "src/core/ms/decompiler.cpp"
     "src/core/ms/compiler.h"
     "src/core/ms/compiler.cpp"
+    "src/core/ms/vm.h"
+    "src/core/ms/vm.cpp"
 )
 
 set(EXPORTED_FUNCTIONS
@@ -52,6 +54,21 @@ set(EXPORTED_FUNCTIONS
     "_smi_mscompiler_new"
     "_smi_mscompiler_destroy"
     "_smi_mscompiler_compile"
+    "_smi_mscopiler_linemap_get"
+
+    "_smi_msvm_new"
+    "_smi_msvm_destroy"
+    "_smi_msvm_loadms"
+    "_smi_msvm_execute_next"
+    "_smi_msvm_pc_get"
+    "_smi_msvm_ir_get"
+    "_smi_msvm_zf_get"
+    "_smi_msvm_memory_get"
+    "_smi_msvm_memory_value_get"
+    "_smi_msvm_labels_get"
+    "_smi_msvm_labels_free"
+    "_smi_msvm_label_get"
+
     "_malloc"
     "_free"
 )
@@ -92,7 +109,7 @@ else()
 
     target_link_options(smiwasmout
         PUBLIC -sEXPORTED_FUNCTIONS=[${EXPORTED_FUNCTIONS_STR}]
-        PUBLIC -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAP8','getValue','UTF8ToString']
+        PUBLIC -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAP8','HEAPU16','getValue','UTF8ToString']
         PUBLIC -sMODULARIZE=1
         PUBLIC -sEXPORT_ES6=1
         PUBLIC -lembind

@@ -5,5 +5,6 @@ typedef struct SMIInterpreter SMIInterpreter;
 typedef struct SMIDebugger SMIDebugger;
 typedef struct SMIMSDecompiler SMIMSDecompiler;
 typedef struct SMIMSCompiler SMIMSCompiler;
+typedef struct SMIMSVM SMIMSVM;
 
 #endif

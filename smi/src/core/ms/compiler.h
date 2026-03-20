@@ -25,11 +25,13 @@ class MSCompiler {
     Label labels[DATASIZE];
     Instruction instructions[DATASIZE];
     std::map<std::string, uint8_t> labelToPos;
+    unsigned int lineMap[DATASIZE];
 
     uint8_t textToInstruction(const std::string& text);
 
    public:
     int compile(const std::string& code, std::string& result);
+    const unsigned int* getLineMap() const { return this->lineMap; }
 };
 
 }  // namespace smi::ms::compiler

@@ -31,3 +31,11 @@ smi::ms::decompiler::MSDecompiler* cast(SMIMSDecompiler* decompiler) {
 SMIMSDecompiler* cast(smi::ms::decompiler::MSDecompiler* decompiler) {
     return reinterpret_cast<SMIMSDecompiler*>(decompiler);
 }
+
+smi::ms::VM* cast(SMIMSVM* vm) {
+    return reinterpret_cast<smi::ms::VM*>(vm);
+}
+
+SMIMSVM* cast(smi::ms::VM* vm) {
+    return reinterpret_cast<SMIMSVM*>(vm);
+}

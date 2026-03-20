@@ -39,6 +39,20 @@ const char* smi_msdecompiler_decompile(SMIMSDecompiler* decompiler, const char* 
 SMIMSCompiler* smi_mscompiler_new();
 void smi_mscompiler_destroy(SMIMSCompiler* compiler);
 const char* smi_mscompiler_compile(SMIMSCompiler* compiler, const char* code, int size, int* sizeout);
+const unsigned int* smi_mscopiler_linemap_get(SMIMSCompiler* compiler);
+
+SMIMSVM* smi_msvm_new();
+void smi_msvm_destroy(SMIMSVM* vm);
+void smi_msvm_loadms(SMIMSVM* vm, unsigned char* ms);
+int smi_msvm_execute_next(SMIMSVM* vm);
+unsigned int smi_msvm_pc_get(SMIMSVM* vm);
+uint16_t smi_msvm_ir_get(SMIMSVM* vm);
+uint8_t smi_msvm_zf_get(SMIMSVM* vm);
+const uint16_t* smi_msvm_memory_get(SMIMSVM* vm);
+uint16_t smi_msvm_memory_value_get(SMIMSVM* vm, uint8_t pos);
+const char** smi_msvm_labels_get(SMIMSVM* vm);
+void smi_msvm_labels_free(const char** labels);
+uint16_t smi_msvm_label_get(SMIMSVM* vm, const char* label);
 
 #ifdef __cplusplus
 }

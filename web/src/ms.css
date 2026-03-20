@@ -1,0 +1,79 @@
+.smi-ms-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    font-family: monospace;
+    position: relative;
+
+    --border-color: #564747;
+}
+
+.smi-ms-line-header * {
+    font-size: 1rem;
+    padding-bottom: 10px;
+}
+
+.smi-ms-line {
+    display: flex;
+    transition: 0.2s background-color;
+    min-height: 30px;
+}
+
+.smi-ms-line:hover {
+    background-color: #4a3125;
+}
+
+.smi-ms-line * {
+    text-align: center;
+    padding: 7px 0px;
+}
+
+.smi-ms-line-breakpoint {
+    background-color: #4a3125;
+}
+
+.smi-ms-container::after {
+    content: "";
+    position: absolute;
+    margin-top: 45px;
+    left: 0;
+    right: 0;
+    top: calc(var(--debugger-line-pos) * 30px);
+    height: 30px;
+    background-color: #ffff0055;
+}
+
+.col-1 {
+    width: 60px;
+    border-right: 1px solid var(--border-color);
+}
+
+.smi-ms-line:not(:first-child) .col-1 {
+    color: #3ec83e;
+}
+
+.col-2 {
+    width: 70px;
+    border-right: 1px solid var(--border-color);
+}
+
+.col-3 {
+    width: 70px;
+}
+
+.smi-ms-line:not(:first-child) .col-3 {
+    text-align: end;
+    white-space: pre-wrap;
+}
+
+.col-4 {
+    text-align: start;
+}
+
+.smi-ms-line-separator {
+    background-color: var(--border-color);
+    min-height: 1px;
+}

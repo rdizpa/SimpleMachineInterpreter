@@ -5,6 +5,7 @@
 #include "core/interpreter.h"
 #include "core/ms/compiler.h"
 #include "core/ms/decompiler.h"
+#include "core/ms/vm.h"
 #include "smi_types.h"
 
 smi::interpreter::Interpreter* cast(SMIInterpreter* interp);
@@ -18,5 +19,8 @@ SMIMSCompiler* cast(smi::ms::compiler::MSCompiler* compiler);
 
 smi::ms::decompiler::MSDecompiler* cast(SMIMSDecompiler* decompiler);
 SMIMSDecompiler* cast(smi::ms::decompiler::MSDecompiler* decompiler);
+
+smi::ms::VM* cast(SMIMSVM* vm);
+SMIMSVM* cast(smi::ms::VM* vm);
 
 #endif

@@ -286,11 +286,13 @@ function showError(errordata) {
     }
 }
 
+window.showError = showError;
+
 // let worker = new Worker("smi-worker.js", { type: "module" });
 let worker = new SMIWorker();
 
 runBtn.addEventListener("click", () => {
-    if (editor.value.length == 0) return;
+    if (editor.value.length == 0 || window.isMsModeActive) return;
 
     if (document.getElementById("toolbar").classList.contains("toolbar-debug")) {
         debuggerRunUntilBreakpoint();
@@ -342,6 +344,7 @@ stopBtn.addEventListener("click", () => {
 let smiDebugger = null;
 let currentLine = -1;
 const breakpoints = new Set();
+window.breakpoints = breakpoints;
 
 function addBreakpoint(line) {
     breakpoints.add(line);
@@ -360,6 +363,10 @@ function toggleBreakpoint(line) {
         removeBreakpoint(line);
     } else {
         addBreakpoint(line);
+    }
+
+    if (window.isMsModeActive) {
+        document.getElementById("smi-ms").render();
     }
 }
 
@@ -437,6 +444,8 @@ document.getElementById("debug").addEventListener("click", () => {
     
     editor.readOnly = true;
 
+    if (window.isMsModeActive) return;
+
     smiDebugger = SMIDebugger();
     currentLine = -1;
     
@@ -452,6 +461,8 @@ document.getElementById("debug").addEventListener("click", () => {
 });
 
 document.getElementById("debug-step").addEventListener("click", () => {
+    if (window.isMsModeActive) return;
+
     if (!smiDebugger || !smiDebugger.hasNext())
         return;
 
@@ -475,9 +486,11 @@ document.getElementById("debug-stop").addEventListener("click", () => {
     document.getElementById("debug-stop").classList.add("hidden");
     document.getElementById("debug").classList.remove("hidden");
 
-    editorHighlight.classList.add("hidden-after");
-
     editor.readOnly = false;
+
+    if (!smiDebugger || window.isMsModeActive) return;
+
+    editorHighlight.classList.add("hidden-after");
 
     smiDebugger.destroy();
     smiDebugger = null;

@@ -151,6 +151,77 @@ const char* smi_mscompiler_compile(SMIMSCompiler* compiler, const char* code, in
     return ptr;
 }
 
+const unsigned int* smi_mscopiler_linemap_get(SMIMSCompiler* compiler) {
+    return cast(compiler)->getLineMap();
+}
+
+SMIMSVM* smi_msvm_new() {
+    return cast(new smi::ms::VM());
+}
+
+void smi_msvm_destroy(SMIMSVM* vm) {
+    delete cast(vm);
+}
+
+void smi_msvm_loadms(SMIMSVM* vm, unsigned char* ms) {
+    cast(vm)->loadMS(ms);
+}
+
+int smi_msvm_execute_next(SMIMSVM* vm) {
+    return cast(vm)->executeNext();
+}
+
+unsigned int smi_msvm_pc_get(SMIMSVM* vm) {
+    return cast(vm)->getPC();
+}
+
+uint16_t smi_msvm_ir_get(SMIMSVM* vm) {
+    return cast(vm)->getIR();
+}
+
+uint8_t smi_msvm_zf_get(SMIMSVM* vm) {
+    return cast(vm)->getZF();
+}
+
+const uint16_t* smi_msvm_memory_get(SMIMSVM* vm) {
+    return cast(vm)->getMemory();
+}
+
+uint16_t smi_msvm_memory_value_get(SMIMSVM* vm, uint8_t pos) {
+    return cast(vm)->getMemoryValue(pos);
+}
+
+const char** smi_msvm_labels_get(SMIMSVM* vm) {
+    int size = cast(vm)->getLabels().size();
+    int i = 0;
+
+    const char** keys = new const char*[size + 1];
+
+    for (auto& key : cast(vm)->getLabels()) {
+        keys[i] = (char*)malloc(key.size() + 1);
+
+        strcpy((char*)keys[i++], key.c_str());
+    }
+
+    keys[i] = NULL;
+
+    return keys;
+}
+
+void smi_msvm_labels_free(const char** labels) {
+    int i = 0;
+
+    while (labels[i] != NULL) {
+        free((char**)labels[i++]);
+    }
+
+    delete[] labels;
+}
+
+uint16_t smi_msvm_label_get(SMIMSVM* vm, const char* label) {
+    return cast(vm)->getLabel(label);
+}
+
 #ifdef EMSCRIPTEN
 #include <emscripten/bind.h>
 
