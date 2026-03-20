@@ -110,12 +110,13 @@ function SMICompiler() {
         destroy: () => Module._smi_mscompiler_destroy(_SMICompiler),
         compile: (code) => {
             const outSize = Module._malloc(4);
+            const codeArr = new TextEncoder().encode(code);
 
             const ptr = Module.ccall(
                 "smi_mscompiler_compile",
                 "number",
-                ["number", "string", "number", "number"],
-                [_SMICompiler, code, code.length, outSize]
+                ["number", "array", "number", "number"],
+                [_SMICompiler, codeArr, codeArr.byteLength, outSize]
             );
 
             const size = Module.getValue(outSize, "i32");
