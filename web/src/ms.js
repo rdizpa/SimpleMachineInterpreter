@@ -8,24 +8,13 @@ const opcodes = [
     "BEQ"
 ];
 
-function debuggerMsShowMemory(vm, labels, memory) {
-    const output = document.querySelector(".output .content");
-    output.innerHTML = "";
+window.changeZF = (el) => {
+    document.getElementById("smi-ms").setZF(parseInt(el.value));
+};
 
-    for (const key in labels) {
-        const value = memory[key];
-        output.insertAdjacentHTML("beforeend",
-            `<div class="row"><div>${labels[key]}</div><div>0x${value.toString(16)}</div><div>${value}</div></div>`
-        );
-    }
-
-    output.insertAdjacentHTML("beforeend", `<div class="row-header"><h4>Register</h4><h4>Value</h4></div>`);
-    output.insertAdjacentHTML("beforeend", `<div class="row"><div>ZF</div><div>${vm.getZF()}</div></div>`);
-    output.insertAdjacentHTML("beforeend", `<div class="row"><div>PC</div><div>${vm.getPC()}</div></div>`);
-    output.insertAdjacentHTML("beforeend", `<div class="row"><div>IR</div><div>${vm.getIR().toString(16).padStart(4, "0").toUpperCase()}</div></div>`);
-
-    //output.insertAdjacentHTML("beforeend", `<div class="row-executed-instructions">Total executed instructions: ${smiDebugger.getExecutedInstructions()}</div>`);
-}
+window.changePC = (el) => {
+    document.getElementById("smi-ms").setPC(parseInt(el.value));
+};
 
 class SmiMsComponent extends HTMLElement {
     constructor() {
@@ -151,9 +140,7 @@ class SmiMsComponent extends HTMLElement {
 
         this.memory = this.vm.getMemory();
 
-        debuggerMsShowMemory(this.vm, this.labels, this.memory);
-
-        this.style.setProperty("--debugger-line-pos", `${this.vm.getPC()}`);
+        this.debuggerMsShowMemory();
 
         this.render();
     }
@@ -165,9 +152,7 @@ class SmiMsComponent extends HTMLElement {
 
         this.render();
 
-        debuggerMsShowMemory(this.vm, this.labels, this.memory);
-
-        this.style.setProperty("--debugger-line-pos", `${this.vm.getPC()}`);
+        this.debuggerMsShowMemory();
     }
 
     async runUntilBreakpoint(timeout = 0) {
@@ -180,8 +165,7 @@ class SmiMsComponent extends HTMLElement {
 
             if (timeout > 0 || (performance.now() - lastTime) > 10) {
                 this.render();
-                debuggerMsShowMemory(this.vm, this.labels, this.memory);
-                this.style.setProperty("--debugger-line-pos", `${this.vm.getPC()}`);
+                this.debuggerMsShowMemory();
             }
 
             if (this.breakpoints.has(this.vm.getPC()))
@@ -194,8 +178,7 @@ class SmiMsComponent extends HTMLElement {
         }
 
         if (this.vm) {
-            debuggerMsShowMemory(this.vm, this.labels, this.memory);
-            this.style.setProperty("--debugger-line-pos", `${this.vm.getPC()}`);
+            this.debuggerMsShowMemory();
             this.render();
         }
     }
@@ -203,6 +186,47 @@ class SmiMsComponent extends HTMLElement {
     stop() {
         this.vm.destroy();
         this.vm = null;
+    }
+
+    setPC(pc) {
+        if (!this.vm || pc < 0 || pc >= 128)
+            return;
+
+        this.vm.setPC(pc);
+        this.debuggerMsShowMemory();
+    }
+
+    setZF(zf) {
+        if (!this.vm || (zf !== 0 && zf !== 1))
+            return;
+        
+        this.vm.setZF(zf);
+        this.debuggerMsShowMemory();
+    }
+
+    debuggerMsShowMemory() {
+        const output = document.querySelector(".output .content");
+        output.innerHTML = "";
+
+        for (const key in this.labels) {
+            const value = this.memory[key];
+            output.insertAdjacentHTML("beforeend",
+                `<div class="row"><div>${this.labels[key]}</div><div>0x${value.toString(16)}</div><div>${value}</div></div>`
+            );
+        }
+
+        output.insertAdjacentHTML("beforeend", `<div class="row-header"><h4>Register</h4><h4>Value</h4></div>`);
+        output.insertAdjacentHTML("beforeend", `<div class="row"><div>ZF</div><div>
+            <input type="number" style="width:100%" value="${this.vm.getZF()}" onchange="changeZF(this)"/>
+        </div></div>`);
+        output.insertAdjacentHTML("beforeend", `<div class="row"><div>PC</div><div>
+            <input type="number" style="width:100%" value="${this.vm.getPC()}" onchange="changePC(this)"/>
+        </div></div>`);
+        output.insertAdjacentHTML("beforeend", `<div class="row"><div>IR</div><div>${this.vm.getIR().toString(16).padStart(4, "0").toUpperCase()}</div></div>`);
+
+        //output.insertAdjacentHTML("beforeend", `<div class="row-executed-instructions">Total executed instructions: ${smiDebugger.getExecutedInstructions()}</div>`);
+
+        this.style.setProperty("--debugger-line-pos", `${this.vm.getPC()}`);
     }
 };
 

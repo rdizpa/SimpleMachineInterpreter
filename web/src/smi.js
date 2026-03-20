@@ -154,6 +154,8 @@ function SMIVM() {
         getPC: () => Module.ccall("smi_msvm_pc_get", "number", ["number"], [_SMIVM]),
         getIR: () => Module.ccall("smi_msvm_ir_get", "number", ["number"], [_SMIVM]),
         getZF: () => Module.ccall("smi_msvm_zf_get", "number", ["number"], [_SMIVM]),
+        setPC: (pc) => Module.ccall("smi_msvm_pc_set", null, ["number", "number"], [_SMIVM, pc]),
+        setZF: (zf) => Module.ccall("smi_msvm_zf_set", null, ["number", "number"], [_SMIVM, zf]),
         getLabels: () => {
             const keys = [];
 

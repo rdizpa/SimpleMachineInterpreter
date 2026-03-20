@@ -183,6 +183,14 @@ uint8_t smi_msvm_zf_get(SMIMSVM* vm) {
     return cast(vm)->getZF();
 }
 
+void smi_msvm_pc_set(SMIMSVM* vm, unsigned int pc) {
+    cast(vm)->setPC(pc);
+}
+
+void smi_msvm_zf_set(SMIMSVM* vm, uint8_t zf) {
+    cast(vm)->setZF(zf);
+}
+
 const uint16_t* smi_msvm_memory_get(SMIMSVM* vm) {
     return cast(vm)->getMemory();
 }

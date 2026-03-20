@@ -63,6 +63,8 @@ set(EXPORTED_FUNCTIONS
     "_smi_msvm_pc_get"
     "_smi_msvm_ir_get"
     "_smi_msvm_zf_get"
+    "_smi_msvm_pc_set"
+    "_smi_msvm_zf_set"
     "_smi_msvm_memory_get"
     "_smi_msvm_memory_value_get"
     "_smi_msvm_labels_get"

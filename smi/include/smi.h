@@ -48,6 +48,8 @@ int smi_msvm_execute_next(SMIMSVM* vm);
 unsigned int smi_msvm_pc_get(SMIMSVM* vm);
 uint16_t smi_msvm_ir_get(SMIMSVM* vm);
 uint8_t smi_msvm_zf_get(SMIMSVM* vm);
+void smi_msvm_pc_set(SMIMSVM* vm, unsigned int pc);
+void smi_msvm_zf_set(SMIMSVM* vm, uint8_t zf);
 const uint16_t* smi_msvm_memory_get(SMIMSVM* vm);
 uint16_t smi_msvm_memory_value_get(SMIMSVM* vm, uint8_t pos);
 const char** smi_msvm_labels_get(SMIMSVM* vm);

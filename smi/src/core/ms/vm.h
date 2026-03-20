@@ -28,13 +28,17 @@ class VM {
     void loadMS(unsigned char* ms);
     void loadMemory(unsigned char* memory);
     int executeNext();
+
     unsigned int getPC() const { return this->pc; }
     uint16_t getIR() const { return this->ir; }
     uint8_t getZF() const { return this->zf; }
 
+    void setPC(unsigned int pc) { this->pc = pc; }
+    void setZF(uint8_t zf) { this->zf = zf; }
+
     const uint16_t* getMemory() const { return this->memory; }
     uint16_t getMemoryValue(uint8_t pos) const { return this->memory[pos]; }
-    const std::vector<std::string> getLabels() const { return this->labelKeys; }
+    const std::vector<std::string>& getLabels() const { return this->labelKeys; }
     uint16_t getLabel(const std::string& label) {
         if (this->labels.find(label) == this->labels.end()) return 0;
 
