@@ -151,7 +151,7 @@ const char* smi_mscompiler_compile(SMIMSCompiler* compiler, const char* code, in
     return ptr;
 }
 
-const unsigned int* smi_mscopiler_linemap_get(SMIMSCompiler* compiler) {
+const int* smi_mscopiler_linemap_get(SMIMSCompiler* compiler) {
     return cast(compiler)->getLineMap();
 }
 

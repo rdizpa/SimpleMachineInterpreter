@@ -25,6 +25,10 @@ int MSCompiler::compile(const std::string& code, std::string& result) {
     memset(this->labels, 0, sizeof(Label) * DATASIZE);
     memset(this->instructions, 0, sizeof(Instruction) * DATASIZE);
 
+    for (int i = 0; i < DATASIZE; i++) {
+        this->lineMap[i] = -1;
+    }
+
     while (tk < tokens.size() && tokens[tk].type != TokenType::_EOF) {
         const lexer::Token& token = tokens[tk++];
 

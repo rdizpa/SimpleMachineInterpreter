@@ -39,7 +39,7 @@ const char* smi_msdecompiler_decompile(SMIMSDecompiler* decompiler, const char* 
 SMIMSCompiler* smi_mscompiler_new();
 void smi_mscompiler_destroy(SMIMSCompiler* compiler);
 const char* smi_mscompiler_compile(SMIMSCompiler* compiler, const char* code, int size, int* sizeout);
-const unsigned int* smi_mscopiler_linemap_get(SMIMSCompiler* compiler);
+const int* smi_mscopiler_linemap_get(SMIMSCompiler* compiler);
 
 SMIMSVM* smi_msvm_new();
 void smi_msvm_destroy(SMIMSVM* vm);
