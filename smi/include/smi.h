@@ -54,6 +54,8 @@ const uint16_t* smi_msvm_memory_get(SMIMSVM* vm);
 uint16_t smi_msvm_memory_value_get(SMIMSVM* vm, uint8_t pos);
 const char** smi_msvm_labels_get(SMIMSVM* vm);
 void smi_msvm_labels_free(const char** labels);
+const char** smi_msvm_data_labels_get(SMIMSVM* vm);
+void smi_msvm_data_labels_free(const char** labels);
 uint16_t smi_msvm_label_get(SMIMSVM* vm, const char* label);
 
 #ifdef __cplusplus

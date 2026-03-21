@@ -171,6 +171,20 @@ function SMIVM() {
 
             return keys;
         },
+        getDataLabels: () => {
+            const keys = [];
+
+            let arrayPointer = Module.ccall("smi_msvm_data_labels_get", "number", ["number"], [_SMIVM]);
+
+            while (Module.getValue(arrayPointer, "i32") != 0) {
+                keys.push(Module.UTF8ToString(Module.getValue(arrayPointer, "i32")));
+                arrayPointer += 4;
+            }
+
+            Module.ccall("smi_msvm_data_labels_free", null, ["number"], [arrayPointer]);
+
+            return keys;
+        },
         getLabel: (label) => Module.ccall("smi_msvm_label_get", "number", ["number", "string"], [_SMIVM, label]),
         getMemory: () => {
             const ptr = Module.ccall("smi_msvm_memory_get", "number", ["number"], [_SMIVM]);

@@ -20,6 +20,7 @@ class VM {
 
     std::unordered_map<std::string, uint16_t> labels;
     std::vector<std::string> labelKeys;
+    std::vector<std::string> dataLabelKeys;
 
     uint8_t read(unsigned char* p, unsigned int& pos);
     uint16_t read16(unsigned char* p, unsigned int& pos);
@@ -39,6 +40,7 @@ class VM {
     const uint16_t* getMemory() const { return this->memory; }
     uint16_t getMemoryValue(uint8_t pos) const { return this->memory[pos]; }
     const std::vector<std::string>& getLabels() const { return this->labelKeys; }
+    const std::vector<std::string>& getDataLabels() const { return this->dataLabelKeys; }
     uint16_t getLabel(const std::string& label) {
         if (this->labels.find(label) == this->labels.end()) return 0;
 

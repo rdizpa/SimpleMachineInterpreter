@@ -226,6 +226,33 @@ void smi_msvm_labels_free(const char** labels) {
     delete[] labels;
 }
 
+const char** smi_msvm_data_labels_get(SMIMSVM* vm) {
+    int size = cast(vm)->getDataLabels().size();
+    int i = 0;
+
+    const char** keys = new const char*[size + 1];
+
+    for (auto& key : cast(vm)->getDataLabels()) {
+        keys[i] = (char*)malloc(key.size() + 1);
+
+        strcpy((char*)keys[i++], key.c_str());
+    }
+
+    keys[i] = NULL;
+
+    return keys;
+}
+
+void smi_msvm_data_labels_free(const char** labels) {
+    int i = 0;
+
+    while (labels[i] != NULL) {
+        free((char**)labels[i++]);
+    }
+
+    delete[] labels;
+}
+
 uint16_t smi_msvm_label_get(SMIMSVM* vm, const char* label) {
     return cast(vm)->getLabel(label);
 }

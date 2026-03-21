@@ -25,7 +25,8 @@ void VM::loadMS(unsigned char* ms) {
         this->memory[i] = read16(ms, pos);
     }
 
-    // pos += DATASIZE * 2;
+    unsigned char* pLineType = ms + pos;
+
     pos += DATASIZE;
 
     unsigned char* pLabelPos = ms + pos + 7 * labelCount;
@@ -37,7 +38,11 @@ void VM::loadMS(unsigned char* ms) {
         std::string labelStr = label;
 
         this->labelKeys.push_back(labelStr);
-        this->labels[labelStr] = read16(pLabelPos, pLabelPosIndex);
+        uint16_t labelPos = read16(pLabelPos, pLabelPosIndex);
+        this->labels[labelStr] = labelPos;
+
+        if (pLineType[labelPos] == DATA) this->dataLabelKeys.push_back(labelStr);
+
         pos += 7;
     }
 }

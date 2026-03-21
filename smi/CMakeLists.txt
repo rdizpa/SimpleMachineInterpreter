@@ -69,6 +69,8 @@ set(EXPORTED_FUNCTIONS
     "_smi_msvm_memory_value_get"
     "_smi_msvm_labels_get"
     "_smi_msvm_labels_free"
+    "_smi_msvm_data_labels_get"
+    "_smi_msvm_data_labels_free"
     "_smi_msvm_label_get"
 
     "_malloc"

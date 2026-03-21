@@ -22,13 +22,14 @@ class SmiMsComponent extends HTMLElement {
         //this.attachShadow({ mode: "open" });
         this.memory = [];
         this.labels = {};
+        this.dataLabels = {};
         this.vm = null;
         this.lineMap = [];
         this.breakpoints = new Set();
     }
 
     firstRender() {
-        this.innerHTML = `<div class="smi-ms-container"></div>`;
+        this.innerHTML = `<div class="smi-ms-container hidden-after"></div>`;
 
         this.updateBreakpoints();
 
@@ -71,12 +72,16 @@ class SmiMsComponent extends HTMLElement {
                 child.classList.remove("smi-ms-line-breakpoint");
             }
 
+            const label = (this.labels[i] ? this.labels[i] + ": " : "").padStart(7, " ");
+
+            if (child.children[2].textContent !== label)
+                child.children[2].textContent = label;
+
             if (child.children[1].textContent === value.toString(16).padStart(4, "0").toUpperCase())
                 continue;
 
-            child.children[0].textContent = i.toString(16).padStart(2, "0").toUpperCase();
+            // child.children[0].textContent = i.toString(16).padStart(2, "0").toUpperCase();
             child.children[1].textContent = value.toString(16).padStart(4, "0").toUpperCase();
-            child.children[2].textContent = (this.labels[i] ? this.labels[i] + ": " : "").padStart(7, " ");
             child.children[3].innerHTML = this.reprValue(value);
         }
     }
@@ -132,10 +137,16 @@ class SmiMsComponent extends HTMLElement {
         this.vm = SMIVM();
         this.vm.loadMS(ms);
         const labels = this.vm.getLabels();
+        const dataLabels = this.vm.getDataLabels();
+        this.dataLabels = {};
         this.labels = {};
 
         for (const label of labels) {
-            this.labels[this.vm.getLabel(label)] = label;
+            const labelPos = this.vm.getLabel(label);
+            this.labels[labelPos] = label;
+
+            if (dataLabels.includes(label))
+                this.dataLabels[labelPos] = label;
         }
 
         this.memory = this.vm.getMemory();
@@ -143,6 +154,8 @@ class SmiMsComponent extends HTMLElement {
         this.debuggerMsShowMemory();
 
         this.render();
+
+        this.querySelector(".smi-ms-container").classList.remove("hidden-after");
     }
 
     step() {
@@ -186,6 +199,7 @@ class SmiMsComponent extends HTMLElement {
     stop() {
         this.vm.destroy();
         this.vm = null;
+        this.querySelector(".smi-ms-container").classList.add("hidden-after");
     }
 
     setPC(pc) {
@@ -208,7 +222,7 @@ class SmiMsComponent extends HTMLElement {
         const output = document.querySelector(".output .content");
         output.innerHTML = "";
 
-        for (const key in this.labels) {
+        for (const key in this.dataLabels) {
             const value = this.memory[key];
             output.insertAdjacentHTML("beforeend",
                 `<div class="row"><div>${this.labels[key]}</div><div>0x${value.toString(16)}</div><div>${value}</div></div>`
