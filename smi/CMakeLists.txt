@@ -7,7 +7,9 @@ endif()
 
 project(SimpleMachineInterpreter)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SMI_LIB_SOURCES
@@ -98,10 +100,6 @@ if (NOT EMSCRIPTEN)
     )
 
     target_link_libraries(smi PRIVATE smi_lib)
-
-    if (MSVC)
-        set_property(TARGET smi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
-    endif()
 
     install(TARGETS smi RUNTIME DESTINATION bin)
 else()
