@@ -103,7 +103,8 @@ class Instruction : public Node {
 
         if (*inst->m_op1 != *m_op1) return false;
 
-        if (*inst->m_op2 != *m_op2) return false;
+        if (!inst->m_op2 && m_op2 || inst->m_op2 && !m_op2) return false;
+        if (m_op2 && *inst->m_op2 != *m_op2) return false;
 
         return true;
     }

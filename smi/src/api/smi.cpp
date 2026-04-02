@@ -50,7 +50,7 @@ void smi_interpreter_memory_keys_free(const char** keys) {
     int i = 0;
 
     while (keys[i] != NULL) {
-        free((char**)keys[i++]);
+        free((char*)keys[i++]);
     }
 
     delete[] keys;
@@ -220,7 +220,7 @@ void smi_msvm_labels_free(const char** labels) {
     int i = 0;
 
     while (labels[i] != NULL) {
-        free((char**)labels[i++]);
+        free((char*)labels[i++]);
     }
 
     delete[] labels;
@@ -247,7 +247,7 @@ void smi_msvm_data_labels_free(const char** labels) {
     int i = 0;
 
     while (labels[i] != NULL) {
-        free((char**)labels[i++]);
+        free((char*)labels[i++]);
     }
 
     delete[] labels;
@@ -257,7 +257,7 @@ uint16_t smi_msvm_label_get(SMIMSVM* vm, const char* label) {
     return cast(vm)->getLabel(label);
 }
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(module) {

@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.10)
+﻿cmake_minimum_required(VERSION 3.25)
 
 if (POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
@@ -7,7 +7,10 @@ endif()
 
 project(SimpleMachineInterpreter)
 
-set(LIBSMI_SOURCES
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(SMI_LIB_SOURCES
     "src/core/lexer.h"
     "src/core/lexer.cpp"
     "src/core/parser.h"
@@ -26,6 +29,9 @@ set(LIBSMI_SOURCES
     "src/core/ms/compiler.cpp"
     "src/core/ms/vm.h"
     "src/core/ms/vm.cpp"
+
+    "src/api/smi.cpp"
+    "src/api/smi_cast.cpp"
 )
 
 set(EXPORTED_FUNCTIONS
@@ -79,37 +85,28 @@ set(EXPORTED_FUNCTIONS
 
 list(JOIN EXPORTED_FUNCTIONS "," EXPORTED_FUNCTIONS_STR)
 
+add_library(smi_lib STATIC ${SMI_LIB_SOURCES})
+set_target_properties(smi_lib PROPERTIES OUTPUT_NAME "smi")
+target_include_directories(smi_lib
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 if (NOT EMSCRIPTEN)
     add_executable(smi
         "src/main.cpp"
-        ${LIBSMI_SOURCES}
     )
 
-    target_include_directories(smi
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
-    )
-
-    if (CMAKE_VERSION VERSION_GREATER 3.12)
-        set_property(TARGET smi PROPERTY CXX_STANDARD 20)
-    endif()
+    target_link_libraries(smi PRIVATE smi_lib)
 
     if (MSVC)
         set_property(TARGET smi PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
-    else()
-        target_link_options(smi PRIVATE
-            -static-libgcc
-            -static-libstdc++
-        )
     endif()
 
     install(TARGETS smi RUNTIME DESTINATION bin)
 else()
-    add_executable(smiwasmout "src/api/smi.cpp" "src/api/smi_cast.cpp" ${LIBSMI_SOURCES})
-
-    target_include_directories(smiwasmout
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-    )
+    add_executable(smiwasmout include/smi.h)
+    target_link_libraries(smiwasmout PRIVATE smi_lib)
 
     target_link_options(smiwasmout
         PUBLIC -sEXPORTED_FUNCTIONS=[${EXPORTED_FUNCTIONS_STR}]
@@ -120,4 +117,9 @@ else()
     )
 endif()
 
-# TODO: Add tests.
+option(SMI_ENABLE_TESTING "Enable testing" OFF)
+
+if (SMI_ENABLE_TESTING)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
