@@ -15,22 +15,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(lexer_test lexer_test.cpp)
-target_link_libraries(lexer_test GTest::gtest_main smi_lib)
-
-add_executable(parser_test parser_test.cpp)
-target_link_libraries(parser_test GTest::gtest_main smi_lib)
-
-add_executable(smi_interpreter_test api/interpreter_test.cpp)
-target_link_libraries(smi_interpreter_test GTest::gtest_main smi_lib)
-
-add_executable(smi_msdecompiler_test api/msdecompiler_test.cpp)
-target_link_libraries(smi_msdecompiler_test GTest::gtest_main smi_lib)
+add_executable(smi_tests
+    lexer_test.cpp
+    parser_test.cpp
+    api/interpreter_test.cpp
+    api/msdecompiler_test.cpp
+    readfile.cpp
+)
+target_link_libraries(smi_tests GTest::gtest_main smi_lib)
 
 include(GoogleTest)
 
-gtest_discover_tests(lexer_test)
-gtest_discover_tests(parser_test)
-
-gtest_discover_tests(smi_interpreter_test)
-gtest_discover_tests(smi_msdecompiler_test)
+gtest_discover_tests(smi_tests)
